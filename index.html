@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anamnese por voz</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<main>
+  <section id="home">
+    <div class="card">
+      <h1>Anamnese por voz</h1>
+      <label for="rs" class="cnt">Roteiro</label>
+      <select id="rs"></select>
+      <div class="row"><button id="novo" class="p g">Novo atendimento</button></div>
+    </div>
+    <div class="card">
+      <h2>Atendimentos salvos neste aparelho</h2>
+      <div id="lista"></div>
+      <div class="row">
+        <button id="exp">Exportar backup</button>
+        <label class="btn">Importar backup<input type="file" id="imp" accept=".json" hidden></label>
+        <label class="btn">Carregar roteiro (.json)<input type="file" id="irot" accept=".json" hidden></label>
+      </div>
+    </div>
+  </section>
+
+  <section id="atend" hidden>
+    <div class="bar"><i id="pb"></i></div>
+    <div class="card">
+      <div class="sec" id="sec"></div>
+      <div class="obj" id="obj"></div>
+      <h1 id="q"></h1>
+      <div class="note" id="note"></div>
+      <button id="mic" class="p">🎙️ Gravar resposta do paciente</button>
+      <div id="msg"></div>
+      <textarea id="ta" placeholder="A resposta aparece aqui enquanto o paciente fala. Você pode editar."></textarea>
+      <div class="row">
+        <button id="prev">← Anterior</button>
+        <button id="next" class="p g">Próxima →</button>
+      </div>
+      <div class="cnt" id="cnt" style="margin-top:10px"></div>
+    </div>
+    <div class="row">
+      <button id="rep" class="p g">📄 Gerar relatório TXT</button>
+      <button id="inicio">← Início</button>
+    </div>
+  </section>
+</main>
+<script>window.ROTEIROS=[];</script>
+<!-- Cada roteiro é um arquivo em roteiros/. Se um arquivo não existir, ele simplesmente não aparece na lista. -->
+<script src="roteiros/rb7.js"></script>
+<script src="roteiros/modelo.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

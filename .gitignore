@@ -1,0 +1,7 @@
+# Nunca suba dados de pacientes
+anamnese_*.txt
+backup_anamneses_*.json
+*.txt
+
+# Se o roteiro RB7 não puder ser divulgado, descomente a linha abaixo
+# roteiros/rb7.js
