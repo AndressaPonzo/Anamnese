@@ -37,3 +37,4 @@ small{color:var(--mu)}
 .lg{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle}
 .lg.base{background:var(--base)}
 .lg.ia{background:var(--ac)}
+#q,.chk span{white-space:pre-line}

@@ -70,6 +70,6 @@ $("rep").onclick=()=>{stop();save();
  let o="ANAMNESE\nPaciente: "+ini+"\nDemanda: "+A.dem+"\nData: "+d.toLocaleString("pt-BR")+"\n",last="";
  steps.forEach((s,n)=>{const a=A.a[n];if(s.opt&&!a)return;
   if(s.t!=last){o+="\n=== "+s.t.toUpperCase()+" ===\n";last=s.t}
-  o+="\nPergunta: "+s.q+"\nResposta: "+(a||"(sem resposta)")+"\n"});
+  o+="\n"+(s.q.includes("\n")?"Perguntas:\n- "+s.q.split("\n").join("\n- "):"Pergunta: "+s.q)+"\nResposta: "+(a||"(sem resposta)")+"\n"});
  baixar(o,"anamnese_"+ini[0]+"_"+d.toISOString().slice(0,10)+"_"+d.toTimeString().slice(0,5).replace(":","")+".txt","text/plain")};
 home();
