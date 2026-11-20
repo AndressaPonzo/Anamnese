@@ -4,7 +4,7 @@ let DB={at:[]},A=null,steps=[],i=0,rec=null,on=false,gen=[],items=[];
 try{DB=JSON.parse(localStorage.getItem(K))||DB}catch(e){}
 const persist=()=>{try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){}};
 const baixar=(txt,nome,tipo)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:tipo+";charset=utf-8"}));a.download=nome;a.click()};
-const show=id=>["home","setup","previa","atend","resumo","pretalk","suspiro","regressao"].forEach(x=>$(x).hidden=x!=id);
+const show=id=>["home","fluxo","boasvindas","setup","previa","atend","resumo","pretalk","suspiro","regressao","retorno","indicacao","encerramento"].forEach(x=>$(x).hidden=x!=id);
 
 /* ---------- Início ---------- */
 function home(){stop();A=null;show("home");
@@ -22,7 +22,7 @@ const cmd=()=>"MODO PERGUNTAS — "+$("dem").value.trim()+($("sexo").value?", "+
 const upd=()=>$("cmd").value=cmd();
 ["dem","sexo","idade","ctx"].forEach(x=>$(x).oninput=upd);
 $("novo").onclick=()=>{["nome","dem","idade","ctx","cola"].forEach(x=>$(x).value="");$("sexo").value="";$("ok").checked=false;upd();show("setup")};
-$("voltar1").onclick=home;$("voltar2").onclick=()=>show("setup");
+$("voltar1").onclick=()=>show("fluxo");$("voltar2").onclick=()=>show("setup");
 $("copiar").onclick=()=>{upd();$("cmd").select();
  (navigator.clipboard?navigator.clipboard.writeText($("cmd").value):Promise.reject()).catch(()=>document.execCommand("copy")).finally(()=>{$("copiar").textContent="Copiado ✓";setTimeout(()=>$("copiar").textContent="Copiar comando",1500)})};
 $("ler").onclick=()=>{
@@ -90,9 +90,9 @@ function leitura(){
   return h?"<h3>"+md(h[1])+"</h3>":"<p>"+md(l.replace(/^[-*•]\s+/,"• "))+"</p>"}).join("")}
 function modoLeitura(on){$("sc_edit").hidden=on;$("sc_ler").hidden=!on}
 function abrirSuspiro(){
- if(!A)return home();
- $("sc_cola").value=A.sc||"";$("sc_ok").value=A.fs||"";
- if(A.sc){leitura();modoLeitura(true)}else modoLeitura(false);
+ $("sc_aviso").hidden=!!A;
+ $("sc_cola").value=A?A.sc||"":$("sc_cola").value;$("sc_ok").value=A?A.fs||"":$("sc_ok").value;
+ if($("sc_cola").value.trim()){leitura();modoLeitura(true)}else modoLeitura(false);
  show("suspiro")}
 $("irsuspiro").onclick=abrirSuspiro;
 // Os dois atalhos da tela Pré-talk devem abrir a mesma página.
@@ -112,9 +112,14 @@ $("sc_cola").oninput=()=>{if(A){A.sc=$("sc_cola").value;persist()}};
 $("sc_ok").oninput=()=>{if(A){A.fs=$("sc_ok").value;persist()}};
 $("sc_exibir").onclick=()=>{
  if(!$("sc_cola").value.trim())return alert("Cole primeiro a resposta do MODO SESSÃO.");
- A.sc=$("sc_cola").value;persist();leitura();modoLeitura(true)};
+ if(A){A.sc=$("sc_cola").value;persist()}leitura();modoLeitura(true)};
 $("sc_editar").onclick=()=>modoLeitura(false);
 $("voltarpretalk").onclick=()=>show("pretalk");
 $("irregressao").onclick=()=>show("regressao");
 $("voltarsuspiro").onclick=()=>show("suspiro");
+
+/* ---------- Navegação do fluxo: qualquer botão com data-go ---------- */
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
+ const p=b.dataset.go;stop();
+ if(p=="home")home();else if(p=="suspiro")abrirSuspiro();else show(p)});
 home();

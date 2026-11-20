@@ -4,14 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Anamnese por voz</title>
-<link rel="stylesheet" href="estilo.css?v=9">
+<link rel="stylesheet" href="estilo.css?v=10">
 </head>
 <body>
 <main>
   <section id="home">
     <div class="card">
       <h1>Anamnese por voz</h1>
-      <div class="row"><button id="novo" class="p g">Novo paciente</button></div>
+      <div class="row"><button class="p g" data-go="fluxo">Fluxo de Sessão de Avaliação →</button></div>
+      <div class="row"><button id="novo" class="g">Novo paciente (ir direto à anamnese)</button></div>
     </div>
     <div class="card">
       <h2>Atendimentos salvos neste aparelho</h2>
@@ -23,9 +24,67 @@
     </div>
   </section>
 
+  <section id="fluxo" hidden>
+    <div class="card">
+      <div class="sec">Roteiro do atendimento</div>
+      <h1>Fluxo de Sessão de Avaliação</h1>
+      <div class="cnt">Toque em uma etapa para abrir a página correspondente.</div>
+      <div class="fluxo">
+        <button data-go="boasvindas"><span class="n">1</span><span>Boas Vindas, Apresentação do Método e explicação da sessão</span></button>
+        <button data-go="setup"><span class="n">2</span><span>Anamnese – Entrevista de mapeamento</span></button>
+        <button data-go="pretalk"><span class="n">3</span><span>Explicação da Técnica antes de iniciar</span></button>
+        <button data-go="suspiro"><span class="n">4</span><span>Suspiro fisiológico e Devolutiva do Mapeamento</span></button>
+        <button data-go="regressao"><span class="n">5</span><span>Regressão e Atualização de memórias</span></button>
+        <button data-go="retorno"><span class="n">6</span><span>Retorno ao presente e Fechamento Clínico</span></button>
+        <button data-go="indicacao"><span class="n">7</span><span>Indicação do protocolo e fechamento da Venda</span></button>
+        <button data-go="encerramento"><span class="n">8</span><span>Encerramento da sessão</span></button>
+      </div>
+    </div>
+    <div class="row"><button data-go="home">← Início</button></div>
+  </section>
+
+  <section id="boasvindas" hidden>
+    <div class="card">
+      <div class="sec">Etapa 1 da sessão</div>
+      <h1>Boas Vindas, Apresentação do Método e explicação da sessão</h1>
+      <div class="cnt">Conteúdo em desenvolvimento.</div>
+    </div>
+
+    <div class="card leitura">
+      <h2>Boas Vindas</h2>
+      <div class="cnt">Rascunho para você ajustar com as suas palavras.</div>
+      <p>“Seja muito bem-vindo(a). Fico feliz de receber você aqui. Este é um espaço de acolhimento: você pode falar no seu ritmo, e nada do que disser vai ser julgado.”</p>
+    </div>
+    <div class="card apoio">
+      <h2>Pergunta de abertura</h2>
+      <ul><li><b>Como você chegou até mim?</b></li></ul>
+    </div>
+
+    <div class="card">
+      <h2>Apresentação do Método</h2>
+      <div class="cnt">Conteúdo em desenvolvimento.</div>
+    </div>
+
+    <div class="card apoio">
+      <h2>Explicação da sessão</h2>
+      <div class="cnt">Conteúdo em desenvolvimento. Etapas da sessão de avaliação:</div>
+      <ul>
+        <li>Anamnese: entrevista de mapeamento.</li>
+        <li>Explicação da técnica antes de iniciar.</li>
+        <li>Suspiro fisiológico e devolutiva do mapeamento.</li>
+        <li>Regressão e atualização de memórias.</li>
+        <li>Retorno ao presente e fechamento clínico.</li>
+        <li>Indicação do protocolo e fechamento.</li>
+        <li>Encerramento da sessão.</li>
+      </ul>
+    </div>
+    <div class="row"><button class="p g" data-go="setup">Anamnese – Entrevista de mapeamento →</button><button data-go="fluxo">☰ Fluxo da sessão</button></div>
+  </section>
+
   <section id="setup" hidden>
     <div class="card f">
-      <h1>Novo paciente</h1>
+      <div class="sec">Etapa 2 da sessão · Novo paciente</div>
+      <h1>Anamnese – Entrevista de mapeamento</h1>
       <input id="nome" type="text" placeholder="Nome do paciente (fica só neste aparelho)">
       <input id="dem" type="text" placeholder="Demanda, como o paciente nomeou (ex.: síndrome do pânico)">
       <div class="row" style="margin:0">
@@ -45,7 +104,7 @@
     </div>
     <div class="row">
       <button id="ler" class="p g">Ler perguntas</button>
-      <button id="voltar1">← Início</button>
+      <button id="voltar1">← Fluxo da sessão</button>
     </div>
   </section>
 
@@ -94,15 +153,15 @@
       <button id="baixar">Baixar TXT</button>
     </div>
     <div class="row">
-      <button id="irpretalk" class="p g">Pré-talk →</button>
+      <button id="irpretalk" class="p g">Explicação da Técnica antes de iniciar →</button>
       <button id="voltarperg">← Voltar às perguntas</button>
     </div>
   </section>
 
   <section id="pretalk" hidden>
     <div class="card">
-      <div class="sec">Antes da primeira regressão</div>
-      <h1>Pré-talk</h1>
+      <div class="sec">Etapa 3 da sessão · Antes da primeira regressão</div>
+      <h1>Explicação da Técnica antes de iniciar</h1>
       <div class="cnt">A conversa prévia ajusta a expectativa para a pessoa não travar tentando “fazer certo”. Passe estes pontos e depois leia o texto abaixo.</div>
     </div>
 
@@ -129,15 +188,15 @@
     </div>
 
     <div class="row">
-      <button id="irsuspiro" class="p g">Suspiro fisiológico e Script de Confiança →</button>
+      <button id="irsuspiro" class="p g">Suspiro fisiológico e Devolutiva do Mapeamento →</button>
       <button id="voltarresumo">← Voltar ao resumo</button>
     </div>
   </section>
 
   <section id="suspiro" hidden>
     <div class="card">
-      <div class="sec">Preparação</div>
-      <h1>Suspiro fisiológico e Script de Confiança</h1>
+      <div class="sec">Etapa 4 da sessão · Preparação</div>
+      <h1>Suspiro fisiológico e Devolutiva do Mapeamento</h1>
       <div class="cnt">Peça para a pessoa se sentar confortavelmente e fechar os olhos. Guie a respiração e, durante o suspiro, leia o Script de Confiança.</div>
     </div>
 
@@ -148,7 +207,8 @@
     </div>
 
     <div class="card">
-      <h2>Parte 2 · Script de Confiança</h2>
+      <h2>Parte 2 · Devolutiva do Mapeamento (Script de Confiança)</h2>
+      <div class="cnt" id="sc_aviso" hidden>Nenhum atendimento aberto: o texto colado não será salvo.</div>
       <div id="sc_edit">
         <div class="cnt">Cole aqui a resposta do MODO SESSÃO. Ela fica salva neste atendimento.</div>
         <textarea id="sc_cola" style="min-height:220px;margin-top:8px" placeholder="Cole a resposta completa do MODO SESSÃO"></textarea>
@@ -167,25 +227,62 @@
     </div>
 
     <div class="row">
-      <button id="irregressao" class="p g">Regressão e atualização das memórias →</button>
-      <button id="voltarpretalk">← Voltar ao pré-talk</button>
+      <button id="irregressao" class="p g">Regressão e Atualização de memórias →</button>
+      <button id="voltarpretalk">← Voltar à explicação da técnica</button>
     </div>
   </section>
 
   <section id="regressao" hidden>
     <div class="card">
-      <div class="sec">Próxima etapa</div>
-      <h1>Regressão e atualização das memórias</h1>
-      <p>Nesta parte da sessão, depois da preparação (pedir para a pessoa se sentar confortavelmente e fechar os olhos), o terapeuta conduz duas etapas centrais do método.</p>
-      <div class="cnt">O conteúdo das duas etapas será adicionado a partir do Guia dos 7 Passos RB7.</div>
+      <div class="sec">Etapa 5 da sessão</div>
+      <h1>Regressão e Atualização de memórias</h1>
+      <div class="cnt">Conteúdo em desenvolvimento. Será detalhado a partir do Guia dos 7 Passos RB7.</div>
     </div>
-    <div class="row"><button id="voltarsuspiro">← Voltar ao Suspiro e Script</button></div>
+    <div class="card apoio"><h2>1. Memória referencial</h2><div>Entrar na cena e achar o sentimento mais intenso.</div></div>
+    <div class="card apoio"><h2>2. Ponte ao passado</h2><div>Contagem de 10 a 1 e perguntas automáticas.</div></div>
+    <div class="card apoio"><h2>3. Realidade radical</h2><div>Provar à criança que ela sobreviveu.</div></div>
+    <div class="card apoio"><h2>4. Revivência neutra</h2><div>Passar pelo caos de novo sem o corpo apitar.</div></div>
+    <div class="card apoio"><h2>5. Verificação final</h2><div>Voltar à referência e conferir no corpo.</div></div>
+    <div class="row"><button class="p g" data-go="retorno">Retorno ao presente e Fechamento Clínico →</button><button id="voltarsuspiro">← Voltar ao Suspiro e Devolutiva</button><button data-go="fluxo">☰ Fluxo da sessão</button></div>
   </section>
-  <div class="cnt" style="text-align:center;margin:20px 0">versão 9</div>
+
+  <section id="retorno" hidden>
+    <div class="card">
+      <div class="sec">Etapa 6 da sessão</div>
+      <h1>Retorno ao presente e Fechamento Clínico</h1>
+      <div class="cnt">Conteúdo em desenvolvimento.</div>
+    </div>
+    <div class="card apoio"><h2>1. Pedir para abrir os olhos</h2><div>Convidar a pessoa a abrir os olhos, sentindo-se mais tranquila.</div></div>
+    <div class="card apoio"><h2>2. Perguntar como está se sentindo agora</h2><div>Colher o feedback imediato, logo após a regressão e a atualização.</div></div>
+    <div class="card apoio"><h2>3. Comparar a intensidade entre as memórias</h2><div>Perguntar como foi cada memória, comparando a intensidade sentida entre a primeira e as seguintes.</div></div>
+    <div class="card apoio"><h2>4. Perguntar o que achou do processo</h2><div>Perguntar abertamente o que a pessoa achou do processo e se sente que faz sentido dar continuidade, pedindo sempre o feedback mais sincero possível, mesmo que seja negativo.</div></div>
+    <div class="row"><button class="p g" data-go="indicacao">Indicação do protocolo e fechamento da Venda →</button><button data-go="regressao">← Regressão</button><button data-go="fluxo">☰ Fluxo da sessão</button></div>
+  </section>
+
+  <section id="indicacao" hidden>
+    <div class="card">
+      <div class="sec">Etapa 7 da sessão</div>
+      <h1>Indicação do protocolo e fechamento da Venda</h1>
+      <div class="cnt">Conteúdo em desenvolvimento.</div>
+    </div>
+    <div class="card apoio"><ul><li>Indicar o protocolo mais adequado à demanda (demandas amplas, como financeiro e emagrecimento, costumam indicar 12 sessões).</li><li>Explicar o formato: sessões semanais de regressão e atualização.</li><li>Explicar que, entre sessões, o paciente percebe gatilhos no dia a dia, que servem de referência.</li><li>Apresentar os valores com transparência e segurança.</li><li>Conduzir o fechamento: forma de pagamento, número de sessões e já propor a data da próxima.</li></ul></div>
+    <div class="row"><button class="p g" data-go="encerramento">Encerramento da sessão →</button><button data-go="retorno">← Retorno ao presente</button><button data-go="fluxo">☰ Fluxo da sessão</button></div>
+  </section>
+
+  <section id="encerramento" hidden>
+    <div class="card">
+      <div class="sec">Etapa 8 da sessão</div>
+      <h1>Encerramento da sessão</h1>
+      <div class="cnt">Conteúdo em desenvolvimento.</div>
+    </div>
+    <div class="card apoio"><ul><li>Agradecer o paciente pela abertura e pela participação durante toda a sessão.</li><li>Colocar-se à disposição para acompanhar a jornada do paciente daqui em diante.</li><li>Desejar uma boa semana e confirmar a data da próxima sessão e a forma de pagamento combinadas.</li></ul></div>
+    <div class="row"><button data-go="indicacao">← Indicação do protocolo</button><button data-go="fluxo">☰ Fluxo da sessão</button><button data-go="home">Início</button></div>
+  </section>
+  <div class="cnt" style="text-align:center;margin:20px 0">versão 10</div>
 </main>
 <script>window.onerror=function(m,s,l){var d=document.createElement("div");d.style.cssText="background:#c0392b;color:#fff;padding:10px;font:14px sans-serif";d.textContent="Erro no site: "+m+" ("+String(s).split("/").pop()+":"+l+")";document.body.prepend(d)}</script>
-<script src="roteiros/base.js?v=9"></script>
-<script src="parser.js?v=9"></script>
-<script src="app.js?v=9"></script>
+<script src="roteiros/base.js?v=10"></script>
+<script src="parser.js?v=10"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>
