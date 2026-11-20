@@ -1,34 +1,44 @@
-const K="anamnese_v2",$=id=>document.getElementById(id);
+const K="anamnese_v3",$=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-let DB={at:[]},A=null,steps=[],i=0,rec=null,on=false;
+let DB={at:[]},A=null,steps=[],i=0,rec=null,on=false,gen=[];
 try{DB=JSON.parse(localStorage.getItem(K))||DB}catch(e){}
 const persist=()=>{try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){}};
-const R=id=>ROTEIROS.find(r=>r.id==id);
-const flat=r=>r.secoes.flatMap(s=>s[3].map(q=>({t:s[0],o:s[1],n:s[2],q,opt:/abertura/i.test(s[0])})));
-const nomeIdx=st=>st.findIndex(s=>/^nome/i.test(s.q));
-function nomeDe(a){const r=R(a.r);if(!r)return"Sem nome";const k=nomeIdx(flat(r));return(k>=0&&a.a[k])||"Sem nome"}
 const baixar=(txt,nome,tipo)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:tipo+";charset=utf-8"}));a.download=nome;a.click()};
+const show=id=>["home","setup","previa","atend"].forEach(x=>$(x).hidden=x!=id);
 
-/* ---------- Tela inicial ---------- */
-function home(){stop();A=null;$("atend").hidden=true;$("home").hidden=false;
- $("rs").innerHTML=ROTEIROS.map(r=>`<option value="${esc(r.id)}">${esc(r.nome)}</option>`).join("");
- $("novo").disabled=!ROTEIROS.length;
- $("lista").innerHTML=DB.at.length?DB.at.slice().reverse().map(a=>{const r=R(a.r);
-  return`<div class="item"><div><b>${esc(nomeDe(a))}</b><br><span class="cnt">${esc(r?r.nome:"roteiro não encontrado")} · ${new Date(a.d).toLocaleString("pt-BR")}</span></div><button data-o="${esc(a.id)}">Abrir</button><button data-x="${esc(a.id)}">Excluir</button></div>`}).join(""):'<div class="cnt">Nenhum atendimento salvo neste aparelho.</div>'}
+/* ---------- Início ---------- */
+function home(){stop();A=null;show("home");
+ $("lista").innerHTML=DB.at.length?DB.at.slice().reverse().map(a=>`<div class="item"><div><b>${esc(a.nome||"Sem nome")}</b><br><span class="cnt">${esc(a.dem||"")} · ${new Date(a.d).toLocaleString("pt-BR")}</span></div><button data-o="${esc(a.id)}">Abrir</button><button data-x="${esc(a.id)}">Excluir</button></div>`).join(""):'<div class="cnt">Nenhum atendimento salvo neste aparelho.</div>'}
 $("lista").onclick=e=>{const o=e.target.dataset.o,x=e.target.dataset.x;
  if(o)abrir(o);
  if(x&&confirm("Excluir este atendimento? Isso não pode ser desfeito.")){DB.at=DB.at.filter(a=>a.id!=x);persist();home()}};
-$("novo").onclick=()=>{const id=Date.now().toString(36);DB.at.push({id,r:$("rs").value,d:Date.now(),i:0,a:[]});persist();abrir(id)};
 $("exp").onclick=()=>baixar(JSON.stringify(DB),"backup_anamneses_"+new Date().toISOString().slice(0,10)+".json","application/json");
-$("imp").onchange=e=>lerArquivo(e,t=>{const d=JSON.parse(t);let n=0;(d.at||[]).forEach(a=>{if(!DB.at.some(b=>b.id==a.id)){DB.at.push(a);n++}});persist();home();alert(n+" atendimento(s) importado(s).")});
-$("irot").onchange=e=>lerArquivo(e,t=>{const r=JSON.parse(t);if(!r.nome||!Array.isArray(r.secoes))throw 0;r.id=r.id||"ext"+Date.now();ROTEIROS.push(r);home();$("rs").value=r.id;alert("Roteiro carregado. Ele vale até você fechar ou recarregar a página.")});
-function lerArquivo(e,fn){const f=e.target.files[0];if(!f)return;const fr=new FileReader();fr.onload=()=>{try{fn(fr.result)}catch(x){alert("Não foi possível ler este arquivo.")}};fr.readAsText(f);e.target.value=""}
+$("imp").onchange=e=>{const f=e.target.files[0];if(!f)return;const fr=new FileReader();
+ fr.onload=()=>{try{const d=JSON.parse(fr.result);let n=0;(d.at||[]).forEach(a=>{if(!DB.at.some(b=>b.id==a.id)){DB.at.push(a);n++}});persist();home();alert(n+" atendimento(s) importado(s).")}catch(x){alert("Não foi possível ler este arquivo.")}};
+ fr.readAsText(f);e.target.value=""};
+
+/* ---------- Novo paciente ---------- */
+const cmd=()=>"MODO PERGUNTAS — "+$("dem").value.trim()+($("sexo").value?", "+$("sexo").value:"")+($("idade").value?", "+$("idade").value+" anos":"")+($("ctx").value.trim()?", "+$("ctx").value.trim():"");
+const upd=()=>$("cmd").value=cmd();
+["dem","sexo","idade","ctx"].forEach(x=>$(x).oninput=upd);
+$("novo").onclick=()=>{["nome","dem","idade","ctx","cola"].forEach(x=>$(x).value="");$("sexo").value="";$("ok").checked=false;upd();show("setup")};
+$("voltar1").onclick=home;$("voltar2").onclick=()=>show("setup");
+$("copiar").onclick=()=>{upd();$("cmd").select();
+ (navigator.clipboard?navigator.clipboard.writeText($("cmd").value):Promise.reject()).catch(()=>document.execCommand("copy")).finally(()=>{$("copiar").textContent="Copiado ✓";setTimeout(()=>$("copiar").textContent="Copiar comando",1500)})};
+$("ler").onclick=()=>{
+ if(!$("nome").value.trim()||!$("dem").value.trim())return alert("Preencha o nome e a demanda.");
+ if(!$("ok").checked)return alert("Confirme o consentimento por escrito do paciente.");
+ gen=parseRoteiro($("cola").value);
+ if(!gen.length)return alert("Não encontrei perguntas no texto colado. Cole a resposta completa do MODO PERGUNTAS.");
+ $("pv").innerHTML=gen.map((s,a)=>`<h3>${esc(s.t)}</h3>`+s.qs.map((x,b)=>`<label class="chk"><input type="checkbox" data-s="${a}" data-q="${b}" ${/fecho|muro/i.test(s.t)?"":"checked"}><span>${esc(x.q)}${x.n?`<br><small>${esc(x.n)}</small>`:""}</span></label>`).join("")).join("");
+ show("previa")};
+$("montar").onclick=()=>{
+ const g=[...$("pv").querySelectorAll("input:checked")].map(c=>{const s=gen[c.dataset.s],x=s.qs[c.dataset.q];return{t:"MODO PERGUNTAS · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt}});
+ const s=[...BASE.ini,...g,...BASE.fim],id=Date.now().toString(36);
+ DB.at.push({id,nome:$("nome").value.trim(),dem:cmd().replace("MODO PERGUNTAS — ",""),d:Date.now(),i:0,s,a:s.map(()=>"")});persist();abrir(id)};
 
 /* ---------- Atendimento ---------- */
-function abrir(id){A=DB.at.find(a=>a.id==id);const r=R(A.r);
- if(!r){alert("O roteiro deste atendimento não está disponível nesta página.");A=null;return}
- steps=flat(r);while(A.a.length<steps.length)A.a.push("");i=Math.min(A.i||0,steps.length-1);
- $("home").hidden=true;$("atend").hidden=false;render()}
+function abrir(id){A=DB.at.find(a=>a.id==id);steps=A.s;i=Math.min(A.i||0,steps.length-1);show("atend");render()}
 function save(){if(!A)return;A.a[i]=$("ta").value.trim();A.i=i;persist()}
 function render(){const s=steps[i];
  $("sec").textContent=s.t;$("obj").textContent=s.o;$("q").textContent=s.q;$("note").textContent=s.n;
@@ -51,10 +61,10 @@ $("next").onclick=()=>go(i+1);$("prev").onclick=()=>go(i-1);
 $("ta").oninput=save;
 $("inicio").onclick=()=>{stop();save();home()};
 $("rep").onclick=()=>{stop();save();
- const k=nomeIdx(steps),nome=(k>=0&&A.a[k])||"paciente";
- let o="ANAMNESE — "+R(A.r).nome+"\nPaciente: "+nome+"\nData: "+new Date(A.d).toLocaleString("pt-BR")+"\n",last="";
+ const d=new Date(A.d),ini=A.nome.trim()[0].toUpperCase()+".";
+ let o="ANAMNESE\nPaciente: "+ini+"\nDemanda: "+A.dem+"\nData: "+d.toLocaleString("pt-BR")+"\n",last="";
  steps.forEach((s,n)=>{const a=A.a[n];if(s.opt&&!a)return;
   if(s.t!=last){o+="\n=== "+s.t.toUpperCase()+" ===\n";last=s.t}
   o+="\nPergunta: "+s.q+"\nResposta: "+(a||"(sem resposta)")+"\n"});
- baixar(o,"anamnese_"+nome.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9]+/g,"_").slice(0,30)+"_"+new Date().toISOString().slice(0,10)+".txt","text/plain")};
+ baixar(o,"anamnese_"+ini[0]+"_"+d.toISOString().slice(0,10)+"_"+d.toTimeString().slice(0,5).replace(":","")+".txt","text/plain")};
 home();

@@ -1,25 +1,26 @@
 # Anamnese por voz
 
-Você faz a pergunta em voz alta, o paciente responde, e a fala dele é transcrita na resposta da pergunta. No final, gera um relatório TXT.
+Você faz a pergunta em voz alta, o paciente responde, e a fala dele é transcrita na resposta. No final, gera um relatório TXT.
 
-## Como usar
+## Fluxo
 1. Abra `index.html` no Google Chrome ou no Microsoft Edge (ou use o link do GitHub Pages).
-2. Escolha o roteiro e clique em **Novo atendimento**.
-3. Faça a pergunta, clique em **Gravar resposta do paciente**, depois **Próxima**.
-4. Clique em **Gerar relatório TXT** quando terminar.
+2. **Novo paciente:** nome, demanda, sexo e idade (opcionais) e a confirmação do consentimento por escrito.
+3. **Copie o comando** `MODO PERGUNTAS — ...` e rode no projeto Mapeamento RB7, na conversa deste paciente. O nome não vai no comando.
+4. Cole a resposta da IA no site e clique em **Ler perguntas**. Na prévia, desmarque as que repetem a sua base.
+5. **Montar roteiro e iniciar:** abertura, dados básicos, 3 primeiras perguntas da queixa, perguntas da IA, exploração do muro e fechamento.
+6. Faça a anamnese por voz e clique em **Gerar relatório TXT**. O TXT identifica o paciente só pela inicial.
 
-Os atendimentos ficam salvos no navegador deste aparelho. Use **Exportar backup** de vez em quando e **Importar backup** para levar para outro aparelho.
+Os atendimentos ficam salvos no navegador deste aparelho. Use **Exportar backup** de vez em quando.
 
-## Adicionar um roteiro
-1. Copie `roteiros/modelo.js`, mude o `id` e o `nome` e edite as perguntas.
-2. Em `index.html`, adicione a linha `<script src="roteiros/seu-arquivo.js"></script>` antes de `app.js`.
-
-Também dá para carregar um roteiro em `.json` pelo botão **Carregar roteiro** (vale até recarregar a página). Formato: `{"nome":"...","secoes":[["Título","Objetivo","Anotação",["Pergunta"]]]}`.
+## Arquivos
+- `roteiros/base.js`: as perguntas fixas (antes e depois das geradas). Edite aqui para mudar a sua base.
+- `parser.js`: lê a resposta do MODO PERGUNTAS.
+- `app.js`, `index.html`, `estilo.css`: o site.
 
 ## Publicar no GitHub Pages
-Settings → Pages → Deploy from a branch → `main` / root. O repositório precisa ser público no plano gratuito.
+Settings → Pages → Deploy from a branch → `main` / root. No plano gratuito o repositório precisa ser público.
 
 ## Privacidade
-- Nenhum dado de paciente vai para o repositório: o `.gitignore` bloqueia os TXT e os backups.
-- Para não publicar o roteiro RB7, descomente `roteiros/rb7.js` no `.gitignore` antes do primeiro commit e carregue o roteiro só no seu computador.
-- Chrome e Edge enviam o áudio ao serviço de voz deles para transcrever. Avise o paciente e peça consentimento.
+- O `.gitignore` bloqueia TXT e backups. Nunca suba dados de pacientes.
+- O site não contém o manual nem o prompt do RB7, só as perguntas de `roteiros/base.js`. Se não puder divulgá-las, descomente essa linha no `.gitignore`.
+- Chrome e Edge enviam o áudio ao serviço de voz deles para transcrever. Avise o paciente.

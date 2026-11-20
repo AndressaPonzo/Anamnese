@@ -11,9 +11,7 @@
   <section id="home">
     <div class="card">
       <h1>Anamnese por voz</h1>
-      <label for="rs" class="cnt">Roteiro</label>
-      <select id="rs"></select>
-      <div class="row"><button id="novo" class="p g">Novo atendimento</button></div>
+      <div class="row"><button id="novo" class="p g">Novo paciente</button></div>
     </div>
     <div class="card">
       <h2>Atendimentos salvos neste aparelho</h2>
@@ -21,8 +19,45 @@
       <div class="row">
         <button id="exp">Exportar backup</button>
         <label class="btn">Importar backup<input type="file" id="imp" accept=".json" hidden></label>
-        <label class="btn">Carregar roteiro (.json)<input type="file" id="irot" accept=".json" hidden></label>
       </div>
+    </div>
+  </section>
+
+  <section id="setup" hidden>
+    <div class="card f">
+      <h1>Novo paciente</h1>
+      <input id="nome" type="text" placeholder="Nome do paciente (fica só neste aparelho)">
+      <input id="dem" type="text" placeholder="Demanda, como o paciente nomeou (ex.: síndrome do pânico)">
+      <div class="row" style="margin:0">
+        <select id="sexo" class="g"><option value="">Sexo (opcional)</option><option>homem</option><option>mulher</option></select>
+        <input id="idade" type="number" min="0" max="120" placeholder="Idade (opcional)" class="g">
+      </div>
+      <input id="ctx" type="text" placeholder="Contexto (opcional)">
+      <label class="chk"><input type="checkbox" id="ok"><span>Tenho o consentimento por escrito do paciente para gravar, transcrever e processar.</span></label>
+    </div>
+    <div class="card f">
+      <h2>1. Copie o comando</h2>
+      <div class="cnt">Cole no projeto Mapeamento RB7, na conversa deste paciente. O nome não vai no comando.</div>
+      <input id="cmd" type="text" readonly>
+      <button id="copiar" class="p">Copiar comando</button>
+      <h2 style="margin-top:12px">2. Cole aqui a resposta da IA</h2>
+      <textarea id="cola" placeholder="Cole o roteiro de perguntas gerado pelo MODO PERGUNTAS"></textarea>
+    </div>
+    <div class="row">
+      <button id="ler" class="p g">Ler perguntas</button>
+      <button id="voltar1">← Início</button>
+    </div>
+  </section>
+
+  <section id="previa" hidden>
+    <div class="card">
+      <h1>Confira as perguntas</h1>
+      <div class="cnt">Desmarque as que repetem a sua base. A pergunta do muro da IA vem desmarcada, porque a sua exploração do muro já cobre.</div>
+      <div id="pv"></div>
+    </div>
+    <div class="row">
+      <button id="montar" class="p g">Montar roteiro e iniciar</button>
+      <button id="voltar2">← Voltar</button>
     </div>
   </section>
 
@@ -48,10 +83,8 @@
     </div>
   </section>
 </main>
-<script>window.ROTEIROS=[];</script>
-<!-- Cada roteiro é um arquivo em roteiros/. Se um arquivo não existir, ele simplesmente não aparece na lista. -->
-<script src="roteiros/rb7.js"></script>
-<script src="roteiros/modelo.js"></script>
+<script src="roteiros/base.js"></script>
+<script src="parser.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

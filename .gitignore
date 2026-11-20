@@ -3,5 +3,5 @@ anamnese_*.txt
 backup_anamneses_*.json
 *.txt
 
-# Se o roteiro RB7 não puder ser divulgado, descomente a linha abaixo
-# roteiros/rb7.js
+# Se as perguntas da base não puderem ser divulgadas, descomente a linha abaixo
+# roteiros/base.js

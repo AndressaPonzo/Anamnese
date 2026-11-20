@@ -25,3 +25,9 @@ button:disabled{opacity:.5;cursor:default}
 .item{display:flex;gap:8px;align-items:center;border:1px solid var(--bd);border-radius:8px;padding:10px;margin-top:8px}
 .item div{flex:1}
 #msg{color:var(--rec);font-size:14px;min-height:20px}
+.f{display:grid;gap:8px}
+input:not([type=checkbox]):not([type=file]){width:100%;padding:12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+.chk{display:flex;gap:8px;align-items:flex-start;padding:6px 0}
+.chk input{margin-top:6px}
+h3{font-size:16px;margin:16px 0 4px;color:var(--ac)}
+small{color:var(--mu)}
