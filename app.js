@@ -4,7 +4,7 @@ let DB={at:[]},A=null,steps=[],i=0,rec=null,on=false,gen=[],items=[];
 try{DB=JSON.parse(localStorage.getItem(K))||DB}catch(e){}
 const persist=()=>{try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){}};
 const baixar=(txt,nome,tipo)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:tipo+";charset=utf-8"}));a.download=nome;a.click()};
-const show=id=>["home","setup","previa","atend","resumo","pretalk"].forEach(x=>$(x).hidden=x!=id);
+const show=id=>["home","setup","previa","atend","resumo","pretalk","suspiro","regressao"].forEach(x=>$(x).hidden=x!=id);
 
 /* ---------- Início ---------- */
 function home(){stop();A=null;show("home");
@@ -81,4 +81,27 @@ $("copiarsessao").onclick=()=>copiarTxt("MODO SESSÃO\n\n"+$("txt").value,$("cop
 $("voltarperg").onclick=()=>show("atend");
 $("irpretalk").onclick=()=>show("pretalk");
 $("voltarresumo").onclick=()=>show("resumo");
+
+/* ---------- Suspiro fisiológico e Script de Confiança ---------- */
+const md=s=>esc(s).replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");
+function leitura(){
+ $("sc_leitura").innerHTML=$("sc_cola").value.split(/\r?\n/).map(l=>l.trim()).filter(l=>l&&!/^[-–—_*]{3,}$/.test(l)).map(l=>{
+  const h=l.match(/^#{1,6}\s*(.+)$/);
+  return h?"<h3>"+md(h[1])+"</h3>":"<p>"+md(l.replace(/^[-*•]\s+/,"• "))+"</p>"}).join("")}
+function modoLeitura(on){$("sc_edit").hidden=on;$("sc_ler").hidden=!on}
+function abrirSuspiro(){
+ if(!A)return home();
+ $("sc_cola").value=A.sc||"";$("sc_ok").value=A.fs||"";
+ if(A.sc){leitura();modoLeitura(true)}else modoLeitura(false);
+ show("suspiro")}
+$("irsuspiro").onclick=abrirSuspiro;
+$("sc_cola").oninput=()=>{if(A){A.sc=$("sc_cola").value;persist()}};
+$("sc_ok").oninput=()=>{if(A){A.fs=$("sc_ok").value;persist()}};
+$("sc_exibir").onclick=()=>{
+ if(!$("sc_cola").value.trim())return alert("Cole primeiro a resposta do MODO SESSÃO.");
+ A.sc=$("sc_cola").value;persist();leitura();modoLeitura(true)};
+$("sc_editar").onclick=()=>modoLeitura(false);
+$("voltarpretalk").onclick=()=>show("pretalk");
+$("irregressao").onclick=()=>show("regressao");
+$("voltarsuspiro").onclick=()=>show("suspiro");
 home();
