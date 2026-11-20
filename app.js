@@ -26,6 +26,7 @@ $("voltar1").onclick=home;$("voltar2").onclick=()=>show("setup");
 $("copiar").onclick=()=>{upd();$("cmd").select();
  (navigator.clipboard?navigator.clipboard.writeText($("cmd").value):Promise.reject()).catch(()=>document.execCommand("copy")).finally(()=>{$("copiar").textContent="Copiado ✓";setTimeout(()=>$("copiar").textContent="Copiar comando",1500)})};
 $("ler").onclick=()=>{
+ if(typeof parseRoteiro=="undefined"||typeof BASE=="undefined")return alert("Faltam arquivos do site (parser.js ou roteiros/base.js). Envie todos os arquivos do pacote.");
  if(!$("nome").value.trim()||!$("dem").value.trim())return alert("Preencha o nome e a demanda.");
  if(!$("ok").checked)return alert("Confirme o consentimento por escrito do paciente.");
  gen=parseRoteiro($("cola").value);
