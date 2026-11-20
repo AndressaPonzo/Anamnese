@@ -95,6 +95,19 @@ function abrirSuspiro(){
  if(A.sc){leitura();modoLeitura(true)}else modoLeitura(false);
  show("suspiro")}
 $("irsuspiro").onclick=abrirSuspiro;
+// Os dois atalhos da tela Pré-talk devem abrir a mesma página.
+const preTalk=$("pretalk");
+if(preTalk){
+  preTalk.addEventListener("click",e=>{
+    const btn=e.target.closest("button");
+    if(!btn)return;
+    const texto=(btn.textContent||"").trim().toLocaleLowerCase("pt-BR");
+    if(texto.includes("suspiro fisiológico")||texto.includes("script de confiança")){
+      e.preventDefault();
+      abrirSuspiro();
+    }
+  });
+}
 $("sc_cola").oninput=()=>{if(A){A.sc=$("sc_cola").value;persist()}};
 $("sc_ok").oninput=()=>{if(A){A.fs=$("sc_ok").value;persist()}};
 $("sc_exibir").onclick=()=>{
