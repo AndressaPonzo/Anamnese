@@ -4,7 +4,7 @@ let DB={at:[]},A=null,steps=[],i=0,rec=null,on=false,gen=[],items=[];
 try{DB=JSON.parse(localStorage.getItem(K))||DB}catch(e){}
 const persist=()=>{try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){}};
 const baixar=(txt,nome,tipo)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:tipo+";charset=utf-8"}));a.download=nome;a.click()};
-const show=id=>["home","setup","previa","atend"].forEach(x=>$(x).hidden=x!=id);
+const show=id=>["home","setup","previa","atend","resumo","pretalk"].forEach(x=>$(x).hidden=x!=id);
 
 /* ---------- Início ---------- */
 function home(){stop();A=null;show("home");
@@ -65,11 +65,20 @@ $("mic").onclick=()=>on?(stop(),save()):start();
 $("next").onclick=()=>go(i+1);$("prev").onclick=()=>go(i-1);
 $("ta").oninput=save;
 $("inicio").onclick=()=>{stop();save();home()};
-$("rep").onclick=()=>{stop();save();
+const arquivo=()=>{const d=new Date(A.d);return"anamnese_"+A.nome.trim()[0].toUpperCase()+"_"+d.toISOString().slice(0,10)+"_"+d.toTimeString().slice(0,5).replace(":","")+".txt"};
+function relatorio(){
  const d=new Date(A.d),ini=A.nome.trim()[0].toUpperCase()+".";
  let o="ANAMNESE\nPaciente: "+ini+"\nDemanda: "+A.dem+"\nData: "+d.toLocaleString("pt-BR")+"\n",last="";
  steps.forEach((s,n)=>{const a=A.a[n];if(s.opt&&!a)return;
   if(s.t!=last){o+="\n=== "+s.t.toUpperCase()+" ===\n";last=s.t}
   o+="\n"+(s.q.includes("\n")?"Perguntas:\n- "+s.q.split("\n").join("\n- "):"Pergunta: "+s.q)+"\nResposta: "+(a||"(sem resposta)")+"\n"});
- baixar(o,"anamnese_"+ini[0]+"_"+d.toISOString().slice(0,10)+"_"+d.toTimeString().slice(0,5).replace(":","")+".txt","text/plain")};
+ return o}
+const copiarTxt=(t,b)=>{const l=b.textContent,f=()=>{const x=document.createElement("textarea");x.value=t;document.body.append(x);x.select();document.execCommand("copy");x.remove()};
+ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).catch(f).then(()=>{b.textContent="Copiado ✓";setTimeout(()=>b.textContent=l,1500)})};
+$("rep").onclick=()=>{stop();save();$("txt").value=relatorio();show("resumo")};
+$("baixar").onclick=()=>baixar($("txt").value,arquivo(),"text/plain");
+$("copiarsessao").onclick=()=>copiarTxt("MODO SESSÃO\n\n"+$("txt").value,$("copiarsessao"));
+$("voltarperg").onclick=()=>show("atend");
+$("irpretalk").onclick=()=>show("pretalk");
+$("voltarresumo").onclick=()=>show("resumo");
 home();

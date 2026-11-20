@@ -79,15 +79,38 @@
       <div class="cnt" id="cnt" style="margin-top:10px"></div>
     </div>
     <div class="row">
-      <button id="rep" class="p g">📄 Gerar relatório TXT</button>
+      <button id="rep" class="p g">📄 Concluir e ver resumo</button>
       <button id="inicio">← Início</button>
     </div>
   </section>
-  <div class="cnt" style="text-align:center;margin:20px 0">versão 6</div>
+
+  <section id="resumo" hidden>
+    <div class="card f">
+      <h1>Resumo da anamnese</h1>
+      <div class="cnt">Confira antes de colar na IA: o manual pede para tirar sobrenomes, nomes de terceiros, empresa, endereço e telefone. Você pode editar o texto abaixo.</div>
+      <textarea id="txt" style="min-height:360px"></textarea>
+      <button id="copiarsessao" class="p">Copiar para o MODO SESSÃO</button>
+      <div class="cnt">Copia o comando MODO SESSÃO e, abaixo dele, este conteúdo.</div>
+      <button id="baixar">Baixar TXT</button>
+    </div>
+    <div class="row">
+      <button id="irpretalk" class="p g">Pré-talk →</button>
+      <button id="voltarperg">← Voltar às perguntas</button>
+    </div>
+  </section>
+
+  <section id="pretalk" hidden>
+    <div class="card">
+      <h1>Pré-talk</h1>
+      <div class="cnt">O conteúdo desta tela será adicionado a partir do Guia dos 7 Passos RB7.</div>
+    </div>
+    <div class="row"><button id="voltarresumo">← Voltar ao resumo</button></div>
+  </section>
+  <div class="cnt" style="text-align:center;margin:20px 0">versão 7</div>
 </main>
 <script>window.onerror=function(m,s,l){var d=document.createElement("div");d.style.cssText="background:#c0392b;color:#fff;padding:10px;font:14px sans-serif";d.textContent="Erro no site: "+m+" ("+String(s).split("/").pop()+":"+l+")";document.body.prepend(d)}</script>
-<script src="roteiros/base.js?v=6"></script>
-<script src="parser.js?v=6"></script>
-<script src="app.js?v=6"></script>
+<script src="roteiros/base.js?v=7"></script>
+<script src="parser.js?v=7"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>
