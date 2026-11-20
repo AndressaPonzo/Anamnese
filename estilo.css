@@ -38,3 +38,8 @@ small{color:var(--mu)}
 .lg.base{background:var(--base)}
 .lg.ia{background:var(--ac)}
 #q,.chk span{white-space:pre-line}
+.apoio ul{margin:8px 0 0;padding-left:22px}
+.apoio li{margin-bottom:8px}
+.leitura{border-left:4px solid var(--ac)}
+.leitura p{font-size:21px;line-height:1.75;margin:14px 0 0}
+.leitura h3{font-size:18px;margin:22px 0 0}
