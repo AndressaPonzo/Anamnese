@@ -1,6 +1,6 @@
 const K="anamnese_v3",$=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-let DB={at:[]},A=null,steps=[],i=0,rec=null,on=false,gen=[];
+let DB={at:[]},A=null,steps=[],i=0,rec=null,on=false,gen=[],items=[];
 try{DB=JSON.parse(localStorage.getItem(K))||DB}catch(e){}
 const persist=()=>{try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){}};
 const baixar=(txt,nome,tipo)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:tipo+";charset=utf-8"}));a.download=nome;a.click()};
@@ -31,11 +31,15 @@ $("ler").onclick=()=>{
  if(!$("ok").checked)return alert("Confirme o consentimento por escrito do paciente.");
  gen=parseRoteiro($("cola").value);
  if(!gen.length)return alert("Não encontrei perguntas no texto colado. Cole a resposta completa do MODO PERGUNTAS.");
- $("pv").innerHTML=gen.map((s,a)=>`<h3>${esc(s.t)}</h3>`+s.qs.map((x,b)=>`<label class="chk"><input type="checkbox" data-s="${a}" data-q="${b}" ${/fecho|muro/i.test(s.t)?"":"checked"}><span>${esc(x.q)}${x.n?`<br><small>${esc(x.n)}</small>`:""}</span></label>`).join("")).join("");
- show("previa")};
+ const ia=gen.flatMap(s=>s.qs.map(x=>({src:"ia",t:"MODO PERGUNTAS · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:/fecho|muro/i.test(s.t)})));
+ items=[...BASE.ini.map(x=>({...x,src:"base"})),...ia,...BASE.fim.map(x=>({...x,src:"base"}))];
+ let last="";
+ $("pv").innerHTML=items.map((x,k)=>(x.t!=last?(last=x.t,`<h3>${esc(x.t)}</h3>`):"")+`<label class="chk ${x.src}"><input type="checkbox" data-k="${k}" ${x.off?"":"checked"}><span><b class="num"></b>${esc(x.q)}${x.n?`<br><small>${esc(x.n)}</small>`:""}</span></label>`).join("");
+ numerar();show("previa")};
+function numerar(){let n=0;$("pv").querySelectorAll("input").forEach(c=>{c.nextElementSibling.firstChild.textContent=c.checked?(++n)+". ":"";c.parentNode.style.opacity=c.checked?1:.45});$("tot").textContent=n+" perguntas no roteiro"}
+$("pv").onchange=numerar;
 $("montar").onclick=()=>{
- const g=[...$("pv").querySelectorAll("input:checked")].map(c=>{const s=gen[c.dataset.s],x=s.qs[c.dataset.q];return{t:"MODO PERGUNTAS · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt}});
- const s=[...BASE.ini,...g,...BASE.fim],id=Date.now().toString(36);
+ const s=[...$("pv").querySelectorAll("input:checked")].map(c=>{const{t,o,n,q,opt}=items[c.dataset.k];return{t,o,n,q,opt}}),id=Date.now().toString(36);
  DB.at.push({id,nome:$("nome").value.trim(),dem:cmd().replace("MODO PERGUNTAS — ",""),d:Date.now(),i:0,s,a:s.map(()=>"")});persist();abrir(id)};
 
 /* ---------- Atendimento ---------- */
