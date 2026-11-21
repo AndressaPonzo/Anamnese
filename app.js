@@ -2,9 +2,10 @@ const K="anamnese_v3",$=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let DB={at:[]},A=null,steps=[],i=0,rec=null,on=false,gen=[],items=[];
 try{DB=JSON.parse(localStorage.getItem(K))||DB}catch(e){}
+DB.at=DB.at||[];DB.bq=DB.bq||[];
 const persist=()=>{try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){}};
 const baixar=(txt,nome,tipo)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:tipo+";charset=utf-8"}));a.download=nome;a.click()};
-const show=id=>["home","fluxo","boasvindas","setup","previa","atend","resumo","pretalk","suspiro","regressao","retorno","indicacao","encerramento"].forEach(x=>$(x).hidden=x!=id);
+const show=id=>["home","banco","fluxo","boasvindas","setup","previa","atend","resumo","pretalk","suspiro","regressao","retorno","indicacao","encerramento"].forEach(x=>$(x).hidden=x!=id);
 
 /* ---------- Início ---------- */
 function home(){stop();A=null;show("home");
@@ -14,28 +15,66 @@ $("lista").onclick=e=>{const o=e.target.dataset.o,x=e.target.dataset.x;
  if(x&&confirm("Excluir este atendimento? Isso não pode ser desfeito.")){DB.at=DB.at.filter(a=>a.id!=x);persist();home()}};
 $("exp").onclick=()=>baixar(JSON.stringify(DB),"backup_anamneses_"+new Date().toISOString().slice(0,10)+".json","application/json");
 $("imp").onchange=e=>{const f=e.target.files[0];if(!f)return;const fr=new FileReader();
- fr.onload=()=>{try{const d=JSON.parse(fr.result);let n=0;(d.at||[]).forEach(a=>{if(!DB.at.some(b=>b.id==a.id)){DB.at.push(a);n++}});persist();home();alert(n+" atendimento(s) importado(s).")}catch(x){alert("Não foi possível ler este arquivo.")}};
+ fr.onload=()=>{try{const d=JSON.parse(fr.result);let n=0;(d.at||[]).forEach(a=>{if(!DB.at.some(b=>b.id==a.id)){DB.at.push(a);n++}});let m=0;(d.bq||[]).forEach(b=>{if(!DB.bq.some(x=>x.id==b.id)){DB.bq.push(b);m++}});persist();home();alert(n+" atendimento(s) e "+m+" conjunto(s) de perguntas importado(s).")}catch(x){alert("Não foi possível ler este arquivo.")}};
  fr.readAsText(f);e.target.value=""};
 
 /* ---------- Novo paciente ---------- */
 const cmd=()=>"MODO PERGUNTAS — "+$("dem").value.trim()+($("sexo").value?", "+$("sexo").value:"")+($("idade").value?", "+$("idade").value+" anos":"")+($("ctx").value.trim()?", "+$("ctx").value.trim():"");
-const upd=()=>$("cmd").value=cmd();
+const upd=()=>{$("cmd").value=cmd();listarBanco()};
 ["dem","sexo","idade","ctx"].forEach(x=>$(x).oninput=upd);
 $("novo").onclick=()=>{["nome","dem","idade","ctx","cola"].forEach(x=>$(x).value="");$("sexo").value="";$("ok").checked=false;upd();show("setup")};
 $("voltar1").onclick=()=>show("fluxo");$("voltar2").onclick=()=>show("setup");
 $("copiar").onclick=()=>{upd();$("cmd").select();
  (navigator.clipboard?navigator.clipboard.writeText($("cmd").value):Promise.reject()).catch(()=>document.execCommand("copy")).finally(()=>{$("copiar").textContent="Copiado ✓";setTimeout(()=>$("copiar").textContent="Copiar comando",1500)})};
-$("ler").onclick=()=>{
- if(typeof parseRoteiro=="undefined"||typeof BASE=="undefined")return alert("Faltam arquivos do site (parser.js ou roteiros/base.js). Envie todos os arquivos do pacote.");
- if(!$("nome").value.trim()||!$("dem").value.trim())return alert("Preencha o nome e a demanda.");
- if(!$("ok").checked)return alert("Confirme o consentimento por escrito do paciente.");
- gen=parseRoteiro($("cola").value);
- if(!gen.length)return alert("Não encontrei perguntas no texto colado. Cole a resposta completa do MODO PERGUNTAS.");
+function validar(){
+ if(typeof BASE=="undefined"){alert("Faltam arquivos do site (roteiros/base.js). Envie todos os arquivos do pacote.");return false}
+ if(!$("nome").value.trim()||!$("dem").value.trim()){alert("Preencha o nome e a demanda.");return false}
+ if(!$("ok").checked){alert("Confirme o consentimento por escrito do paciente.");return false}
+ return true}
+function previa(g,doBanco){
+ gen=g;
  const ia=gen.flatMap(s=>s.qs.map(x=>({src:"ia",t:"MODO PERGUNTAS · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:/fecho|muro/i.test(s.t)})));
  items=[...BASE.ini.map(x=>({...x,src:"base"})),...ia,...BASE.fim.map(x=>({...x,src:"base"}))];
  let last="";
  $("pv").innerHTML=items.map((x,k)=>(x.t!=last?(last=x.t,`<h3>${esc(x.t)}</h3>`):"")+`<label class="chk ${x.src}"><input type="checkbox" data-k="${k}" ${x.off?"":"checked"}><span><b class="num"></b>${esc(x.q)}${x.n?`<br><small>${esc(x.n)}</small>`:""}</span></label>`).join("");
- numerar();show("previa")};
+ $("salvarbanco").hidden=doBanco;
+ if(!doBanco){$("bq_dem").value=$("dem").value.trim();$("bq_sexo").value=$("sexo").value;$("bq_min").value="";$("bq_max").value="";$("bq_msg").textContent=""}
+ numerar();show("previa")}
+$("ler").onclick=()=>{
+ if(typeof parseRoteiro=="undefined")return alert("Faltam arquivos do site (parser.js). Envie todos os arquivos do pacote.");
+ if(!validar())return;
+ const g=parseRoteiro($("cola").value);
+ if(!g.length)return alert("Não encontrei perguntas no texto colado. Cole a resposta completa do MODO PERGUNTAS.");
+ previa(g,false)};
+
+/* ---------- Banco de perguntas ---------- */
+const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+const faixa=b=>b.min!=null&&b.max!=null?b.min+" a "+b.max+" anos":b.max!=null?"até "+b.max+" anos":b.min!=null?"a partir de "+b.min+" anos":"qualquer idade";
+const rotulo=b=>b.dem+" · "+(b.sexo||"homem ou mulher")+" · "+faixa(b);
+const nq=g=>g.reduce((n,s)=>n+s.qs.length,0);
+function achar(){
+ const d=norm($("dem").value),sx=$("sexo").value,id=$("idade").value===""?null:+$("idade").value;
+ if(!d)return[];
+ return DB.bq.filter(b=>{const bd=norm(b.dem);return bd&&(d.includes(bd)||bd.includes(d))&&(!b.sexo||!sx||b.sexo==sx)&&(id==null||((b.min==null||id>=b.min)&&(b.max==null||id<=b.max)))})}
+function listarBanco(){const r=achar();
+ $("bancolista").innerHTML=!$("dem").value.trim()?'<div class="cnt">Preencha a demanda para procurar no banco.</div>':r.length?r.map(b=>`<div class="item"><div>${esc(rotulo(b))}<br><span class="cnt">${nq(b.gen)} perguntas</span></div><button class="p" data-b="${esc(b.id)}">Usar</button></div>`).join(""):'<div class="cnt">Nenhuma entrada no banco para esta combinação.</div>'}
+$("bancolista").onclick=e=>{const b=e.target.dataset.b;if(!b||!validar())return;const x=DB.bq.find(y=>y.id==b);if(x)previa(JSON.parse(JSON.stringify(x.gen)),true)};
+$("bq_salvar").onclick=()=>{
+ const dem=$("bq_dem").value.trim(),sexo=$("bq_sexo").value,min=$("bq_min").value===""?null:+$("bq_min").value,max=$("bq_max").value===""?null:+$("bq_max").value;
+ if(!dem)return alert("Informe a demanda.");
+ if(min!==null&&max!==null&&min>max)return alert("A idade inicial é maior que a final.");
+ const ig=DB.bq.find(b=>norm(b.dem)==norm(dem)&&b.sexo==sexo&&b.min===min&&b.max===max);
+ if(ig){if(!confirm("Já existe uma entrada igual no banco. Substituir?"))return;ig.gen=gen;ig.d=Date.now()}
+ else DB.bq.push({id:Date.now().toString(36),dem,sexo,min,max,gen,d:Date.now()});
+ persist();$("bq_msg").textContent="Salvo no banco ✓";setTimeout(()=>$("bq_msg").textContent="",2500)};
+function paginaBanco(){
+ $("bq_lista").innerHTML=DB.bq.length?DB.bq.slice().reverse().map(b=>`<div class="item"><div><b>${esc(rotulo(b))}</b><br><span class="cnt">${nq(b.gen)} perguntas</span><details><summary class="cnt">Ver perguntas</summary>${b.gen.map(s=>"<h3>"+esc(s.t)+"</h3>"+s.qs.map(q=>'<div class="cnt">• '+esc(q.q)+"</div>").join("")).join("")}</details></div><button data-r="${esc(b.id)}">Renomear</button><button data-x="${esc(b.id)}">Excluir</button></div>`).join(""):'<div class="cnt">O banco está vazio. Salve um conjunto na tela de prévia, depois de ler as perguntas do MODO PERGUNTAS.</div>';
+ show("banco")}
+$("bq_lista").onclick=e=>{const r=e.target.dataset.r,x=e.target.dataset.x;
+ if(r){const b=DB.bq.find(y=>y.id==r),n=prompt("Nome da demanda:",b.dem);if(n&&n.trim()){b.dem=n.trim();persist();paginaBanco()}}
+ if(x&&confirm("Excluir este conjunto de perguntas?")){DB.bq=DB.bq.filter(b=>b.id!=x);persist();paginaBanco()}};
+$("irbanco").onclick=paginaBanco;
+$("voltarbanco").onclick=home;
 function numerar(){let n=0;$("pv").querySelectorAll("input").forEach(c=>{c.nextElementSibling.firstChild.textContent=c.checked?(++n)+". ":"";c.parentNode.style.opacity=c.checked?1:.45});$("tot").textContent=n+" perguntas no roteiro"}
 $("pv").onchange=numerar;
 $("montar").onclick=()=>{

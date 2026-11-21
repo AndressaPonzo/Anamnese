@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Anamnese por voz</title>
-<link rel="stylesheet" href="estilo.css?v=14">
+<link rel="stylesheet" href="estilo.css?v=15">
 </head>
 <body>
 <main>
@@ -12,6 +12,7 @@
     <div class="card">
       <h1>Anamnese por voz</h1>
       <div class="row"><button class="p g" data-go="fluxo">Fluxo de Sessão de Avaliação →</button></div>
+      <div class="row"><button id="irbanco" class="g">Banco de perguntas</button></div>
       <div class="row"><button id="novo" class="g">Novo paciente (ir direto à anamnese)</button></div>
     </div>
     <div class="card">
@@ -22,6 +23,15 @@
         <label class="btn">Importar backup<input type="file" id="imp" accept=".json" hidden></label>
       </div>
     </div>
+  </section>
+
+  <section id="banco" hidden>
+    <div class="card">
+      <h1>Banco de perguntas</h1>
+      <div class="cnt">Conjuntos de perguntas salvos por demanda, sexo e faixa etária. Eles entram no backup.</div>
+      <div id="bq_lista"></div>
+    </div>
+    <div class="row"><button id="voltarbanco">← Início</button></div>
   </section>
 
   <section id="fluxo" hidden>
@@ -125,6 +135,11 @@
       <label class="chk"><input type="checkbox" id="ok"><span>Tenho o consentimento por escrito do paciente para gravar, transcrever e processar.</span></label>
     </div>
     <div class="card f">
+      <h2>Banco de perguntas</h2>
+      <div class="cnt">Se houver perguntas salvas para a demanda, o sexo e a idade preenchidos acima, elas aparecem aqui. Toque em Usar para ir direto à prévia, sem os passos 1 e 2.</div>
+      <div id="bancolista"></div>
+    </div>
+    <div class="card f">
       <h2>1. Copie o comando</h2>
       <div class="cnt">Cole no projeto Mapeamento RB7, na conversa deste paciente. O nome não vai no comando.</div>
       <input id="cmd" type="text" readonly>
@@ -144,6 +159,18 @@
       <div class="cnt"><span class="lg base"></span> Base da sua anamnese &nbsp; <span class="lg ia"></span> Geradas pelo MODO PERGUNTAS &nbsp;·&nbsp; <b id="tot"></b></div>
       <div class="cnt" style="margin-top:6px">Esta é a ordem final. Desmarque as repetidas, de qualquer cor. A pergunta do muro da IA vem desmarcada, porque a exploração do muro da base já cobre.</div>
       <div id="pv"></div>
+    </div>
+    <div class="card f" id="salvarbanco">
+      <h2>Salvar no banco de perguntas</h2>
+      <div class="cnt">Guarda as perguntas geradas pelo MODO PERGUNTAS para reutilizar com pacientes de perfil parecido. Confira se nenhuma traz dado pessoal deste paciente. Deixe as idades em branco para valer para qualquer idade.</div>
+      <input id="bq_dem" type="text" placeholder="Demanda (ex.: ansiedade)">
+      <div class="row" style="margin:0">
+        <select id="bq_sexo" class="g"><option value="">Homem ou mulher</option><option value="homem">Homem</option><option value="mulher">Mulher</option></select>
+        <input id="bq_min" type="number" min="0" max="120" placeholder="Idade de" class="g">
+        <input id="bq_max" type="number" min="0" max="120" placeholder="Idade até" class="g">
+      </div>
+      <button id="bq_salvar">Salvar no banco</button>
+      <div class="cnt" id="bq_msg"></div>
     </div>
     <div class="row">
       <button id="montar" class="p g">Montar roteiro e iniciar</button>
@@ -308,11 +335,11 @@
     <div class="card apoio"><ul><li>Agradecer o paciente pela abertura e pela participação durante toda a sessão.</li><li>Colocar-se à disposição para acompanhar a jornada do paciente daqui em diante.</li><li>Desejar uma boa semana e confirmar a data da próxima sessão e a forma de pagamento combinadas.</li></ul></div>
     <div class="row"><button data-go="indicacao">← Indicação do protocolo</button><button data-go="fluxo">☰ Fluxo da sessão</button><button data-go="home">Início</button></div>
   </section>
-  <div class="cnt" style="text-align:center;margin:20px 0">versão 14</div>
+  <div class="cnt" style="text-align:center;margin:20px 0">versão 15</div>
 </main>
 <script>window.onerror=function(m,s,l){var d=document.createElement("div");d.style.cssText="background:#c0392b;color:#fff;padding:10px;font:14px sans-serif";d.textContent="Erro no site: "+m+" ("+String(s).split("/").pop()+":"+l+")";document.body.prepend(d)}</script>
-<script src="roteiros/base.js?v=14"></script>
-<script src="parser.js?v=14"></script>
-<script src="app.js?v=14"></script>
+<script src="roteiros/base.js?v=15"></script>
+<script src="parser.js?v=15"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>
