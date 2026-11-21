@@ -41,7 +41,7 @@ function previa(g,bd){
  items=[...BASE.ini.map(x=>({...x,src:"base"})),...bi,...ia,...BASE.fim.map(x=>({...x,src:"base"}))];
  let last="";
  $("pv").innerHTML=items.map((x,k)=>(x.t!=last?(last=x.t,`<h3>${esc(x.t)}</h3>`):"")+`<label class="chk ${x.src=="bd"?"bco":x.src}"><input type="checkbox" data-k="${k}" ${x.off?"":"checked"}><span><b class="num"></b>${x.src=="bd"?'<em class="tag">Banco</em>':""}${esc(x.q)}${x.n?`<br><small>${esc(x.n)}</small>`:""}</span></label>`).join("");
- $("qtd").textContent=(bd.length?"Entradas do banco usadas: "+bd.map(rotulo).join("; "):"Nenhuma entrada do banco combina com a demanda, o sexo e a idade preenchidos")+". Total além da base: "+(bi.length+ia.length)+" perguntas ("+bi.length+" do banco + "+ia.length+" novas)"+(jatinha?" · "+jatinha+" da IA já estavam no banco":"")+" · "+(ia.length?"Novas: "+ia.length+" perguntas geradas pela IA":"nenhuma pergunta nova")+"."
+ qinfo=(bd.length?"Entradas do banco usadas: "+bd.map(rotulo).join("; "):"Nenhuma entrada do banco combina com a demanda, o sexo e a idade preenchidos")+". Listadas: "+(bi.length+ia.length)+" perguntas ("+bi.length+" do banco + "+ia.length+" novas)"+(jatinha?"; "+jatinha+" da IA já estavam no banco":"")+". "
  $("salvarbanco").hidden=!g.length;
  if(g.length){$("bq_dem").value=$("dem").value.trim();$("bq_sexo").value=$("sexo").value;$("bq_min").value="";$("bq_max").value="";$("bq_msg").textContent=""}
  numerar();show("previa")}
@@ -90,8 +90,10 @@ $("bq_lista").onclick=e=>{const r=e.target.dataset.r,x=e.target.dataset.x;
  if(x&&confirm("Excluir este conjunto de perguntas?")){DB.bq=DB.bq.filter(b=>b.id!=x);persist();renderBanco()}};
 $("irbanco").onclick=paginaBanco;
 $("voltarbanco").onclick=home;
+let qinfo="";
 function numerar(){let n=0;$("pv").querySelectorAll("input").forEach(c=>{c.nextElementSibling.firstChild.textContent=c.checked?(++n)+". ":"";c.parentNode.style.opacity=c.checked?1:.45});$("tot").textContent=n+" perguntas no roteiro";
  let nb=0,ni=0;$("pv").querySelectorAll("input:checked").forEach(c=>{const s=items[c.dataset.k].src;if(s=="bd")nb++;if(s=="ia")ni++});
+ $("qtd").textContent=qinfo+"Marcadas agora: "+(nb+ni)+" perguntas ("+nb+" do banco + "+ni+" novas).";
  $("bq_info").textContent="Será salvo: "+(nb+ni)+" perguntas no total ("+nb+" do banco + "+ni+" novas). Só entram as que estão marcadas."}
 $("pv").onchange=numerar;
 $("montar").onclick=()=>{
