@@ -41,8 +41,8 @@ small{color:var(--mu)}
 .apoio ul{margin:8px 0 0;padding-left:22px}
 .apoio li{margin-bottom:8px}
 .leitura{border-left:4px solid var(--ac)}
-.leitura p{font-size:21px;line-height:1.75;margin:14px 0 0}
-.leitura h3{font-size:18px;margin:22px 0 0}
+.leitura p{font-size:18px;line-height:1.65;margin:12px 0 0}
+.leitura h3{font-size:17px;margin:20px 0 0}
 .fluxo{display:grid;gap:8px;margin-top:12px}
 .fluxo button{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:14px}
 .fluxo .n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--ac);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:15px}
