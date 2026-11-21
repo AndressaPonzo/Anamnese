@@ -57,7 +57,8 @@ const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLo
 const faixa=b=>b.min!=null&&b.max!=null?b.min+" a "+b.max+" anos":b.max!=null?"até "+b.max+" anos":b.min!=null?"a partir de "+b.min+" anos":"qualquer idade";
 const rotulo=b=>b.dem+" · "+(b.sexo||"homem ou mulher")+" · "+faixa(b);
 const nq=g=>g.reduce((n,s)=>n+s.qs.length,0);
-const cont=b=>nq(b.gen)+" perguntas no total"+(b.novas!=null?" · novas: "+b.novas:"");
+const baseOf=b=>b.base||[...BASE.ini.map(x=>({t:x.t,q:x.q,p:"i"})),...BASE.fim.map(x=>({t:x.t,q:x.q,p:"f"}))];
+const cont=b=>(baseOf(b).length+nq(b.gen))+" perguntas no total"+(b.novas!=null?" · novas: "+b.novas:"");
 const ordem=(x,y)=>norm(x.dem).localeCompare(norm(y.dem),"pt-BR")||String(x.sexo).localeCompare(String(y.sexo))||((x.min??-1)-(y.min??-1))||((x.max??999)-(y.max??999));
 function atualizarDemandas(){const m=new Map();DB.bq.forEach(b=>{const k=norm(b.dem);if(k&&!m.has(k))m.set(k,b.dem.trim())});
  $("dl_dem").innerHTML=[...m.values()].sort((x,y)=>x.localeCompare(y,"pt-BR")).map(d=>`<option value="${esc(d)}">`).join("")}
@@ -75,14 +76,18 @@ $("bq_salvar").onclick=()=>{
  if(!sel.length)return alert("Nenhuma pergunta do banco ou da IA está marcada.");
  const mp=new Map();sel.forEach(x=>{if(!mp.has(x.st))mp.set(x.st,{t:x.st,qs:[],opt:false});mp.get(x.st).qs.push({q:x.q,n:x.n||"",opt:!!x.opt})});
  const g2=[...mp.values()],novas=sel.filter(x=>x.src=="ia").length;
+ const base=[...$("pv").querySelectorAll("input:checked")].map(c=>({k:+c.dataset.k,x:items[c.dataset.k]})).filter(o=>o.x.src=="base").map(o=>({t:o.x.t,q:o.x.q,p:o.k<BASE.ini.length?"i":"f"}));
  if(min!==null&&max!==null&&min>max)return alert("A idade inicial é maior que a final.");
  const ig=DB.bq.find(b=>norm(b.dem)==norm(dem)&&b.sexo==sexo&&b.min===min&&b.max===max);
- if(ig){if(!confirm("Já existe uma entrada igual no banco. Substituir?"))return;ig.gen=g2;ig.novas=novas;ig.d=Date.now()}
- else DB.bq.push({id:Date.now().toString(36),dem,sexo,min,max,gen:g2,novas,d:Date.now()});
+ if(ig){if(!confirm("Já existe uma entrada igual no banco. Substituir?"))return;ig.gen=g2;ig.base=base;ig.novas=novas;ig.d=Date.now()}
+ else DB.bq.push({id:Date.now().toString(36),dem,sexo,min,max,gen:g2,base,novas,d:Date.now()});
  persist();atualizarDemandas();$("bq_msg").textContent="Salvo no banco ✓";setTimeout(()=>$("bq_msg").textContent="",2500)};
+function verPerg(b){
+ const L=q=>'<div class="cnt" style="white-space:pre-line">• '+esc(q)+"</div>",B=p=>{let o="",last="";baseOf(b).filter(x=>x.p==p).forEach(x=>{if(x.t!=last){last=x.t;o+="<h3>"+esc(x.t)+' <em class="tag">Base</em></h3>'}o+=L(x.q)});return o};
+ return B("i")+b.gen.map(s=>"<h3>"+esc(s.t)+"</h3>"+s.qs.map(q=>L(q.q)).join("")).join("")+B("f")}
 function renderBanco(){
  const q=norm($("bq_busca").value),L=DB.bq.filter(b=>!q||norm(rotulo(b)).includes(q)).sort(ordem);
- $("bq_lista").innerHTML=L.length?L.map(b=>`<div class="item"><div><b>${esc(rotulo(b))}</b><br><span class="cnt">${cont(b)}</span><details><summary class="cnt">Ver perguntas</summary>${b.gen.map(s=>"<h3>"+esc(s.t)+"</h3>"+s.qs.map(q=>'<div class="cnt">• '+esc(q.q)+"</div>").join("")).join("")}</details></div><button data-r="${esc(b.id)}">Renomear</button><button data-x="${esc(b.id)}">Excluir</button></div>`).join(""):'<div class="cnt">'+(DB.bq.length?"Nada encontrado para esta busca.":"O banco está vazio. Salve um conjunto na tela de prévia, depois de ler as perguntas do MODO PERGUNTAS.")+"</div>"}
+ $("bq_lista").innerHTML=L.length?L.map(b=>`<div class="item"><div><b>${esc(rotulo(b))}</b><br><span class="cnt">${cont(b)}</span><details><summary class="cnt">Ver perguntas</summary>${verPerg(b)}</details></div><button data-r="${esc(b.id)}">Renomear</button><button data-x="${esc(b.id)}">Excluir</button></div>`).join(""):'<div class="cnt">'+(DB.bq.length?"Nada encontrado para esta busca.":"O banco está vazio. Salve um conjunto na tela de prévia, depois de ler as perguntas do MODO PERGUNTAS.")+"</div>"}
 function paginaBanco(){$("bq_busca").value="";renderBanco();show("banco")}
 $("bq_busca").oninput=renderBanco;
 $("bq_lista").onclick=e=>{const r=e.target.dataset.r,x=e.target.dataset.x;
