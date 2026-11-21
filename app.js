@@ -34,9 +34,9 @@ function validar(){
 function previa(g,bd){
  gen=g;
  const off=t=>/fecho|muro/i.test(t);
- const ia=g.flatMap(s=>s.qs.map(x=>({src:"ia",t:"MODO PERGUNTAS · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:off(s.t)})));
+ const ia=g.flatMap(s=>s.qs.map(x=>({src:"ia",st:s.t,t:"MODO PERGUNTAS · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:off(s.t)})));
  const vistos=new Set(ia.map(x=>norm(x.q))),bi=[];
- bd.forEach(b=>b.gen.forEach(s=>s.qs.forEach(x=>{const k=norm(x.q);if(vistos.has(k))return;vistos.add(k);bi.push({src:"bd",t:"BANCO · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:off(s.t)})})));
+ bd.forEach(b=>b.gen.forEach(s=>s.qs.forEach(x=>{const k=norm(x.q);if(vistos.has(k))return;vistos.add(k);bi.push({src:"bd",st:s.t,t:"BANCO · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:off(s.t)})})));
  items=[...BASE.ini.map(x=>({...x,src:"base"})),...bi,...ia,...BASE.fim.map(x=>({...x,src:"base"}))];
  let last="";
  $("pv").innerHTML=items.map((x,k)=>(x.t!=last?(last=x.t,`<h3>${esc(x.t)}</h3>`):"")+`<label class="chk ${x.src=="bd"?"bco":x.src}"><input type="checkbox" data-k="${k}" ${x.off?"":"checked"}><span><b class="num"></b>${x.src=="bd"?'<em class="tag">Banco</em>':""}${esc(x.q)}${x.n?`<br><small>${esc(x.n)}</small>`:""}</span></label>`).join("");
@@ -56,6 +56,7 @@ const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLo
 const faixa=b=>b.min!=null&&b.max!=null?b.min+" a "+b.max+" anos":b.max!=null?"até "+b.max+" anos":b.min!=null?"a partir de "+b.min+" anos":"qualquer idade";
 const rotulo=b=>b.dem+" · "+(b.sexo||"homem ou mulher")+" · "+faixa(b);
 const nq=g=>g.reduce((n,s)=>n+s.qs.length,0);
+const cont=b=>nq(b.gen)+" perguntas no total"+(b.novas!=null?" · novas: "+b.novas:"");
 const ordem=(x,y)=>norm(x.dem).localeCompare(norm(y.dem),"pt-BR")||String(x.sexo).localeCompare(String(y.sexo))||((x.min??-1)-(y.min??-1))||((x.max??999)-(y.max??999));
 function atualizarDemandas(){const m=new Map();DB.bq.forEach(b=>{const k=norm(b.dem);if(k&&!m.has(k))m.set(k,b.dem.trim())});
  $("dl_dem").innerHTML=[...m.values()].sort((x,y)=>x.localeCompare(y,"pt-BR")).map(d=>`<option value="${esc(d)}">`).join("")}
@@ -64,19 +65,23 @@ function achar(){
  if(!d)return[];
  return DB.bq.filter(b=>{const bd=norm(b.dem);return bd&&(d.includes(bd)||bd.includes(d))&&(!b.sexo||!sx||b.sexo==sx)&&(id==null||((b.min==null||id>=b.min)&&(b.max==null||id<=b.max)))}).sort(ordem)}
 function listarBanco(){const r=achar();
- $("bancolista").innerHTML=!$("dem").value.trim()?'<div class="cnt">Preencha a demanda para procurar no banco.</div>':r.length?r.map(b=>`<div class="item"><div>${esc(rotulo(b))}<br><span class="cnt">${nq(b.gen)} perguntas</span></div><button class="p" data-b="${esc(b.id)}">Usar</button></div>`).join(""):'<div class="cnt">Nenhuma entrada no banco para esta combinação.</div>'}
+ $("bancolista").innerHTML=!$("dem").value.trim()?'<div class="cnt">Preencha a demanda para procurar no banco.</div>':r.length?r.map(b=>`<div class="item"><div>${esc(rotulo(b))}<br><span class="cnt">${cont(b)}</span></div><button class="p" data-b="${esc(b.id)}">Usar</button></div>`).join(""):'<div class="cnt">Nenhuma entrada no banco para esta combinação.</div>'}
 $("bancolista").onclick=e=>{const b=e.target.dataset.b;if(!b||!validar())return;const x=DB.bq.find(y=>y.id==b);if(x)previa([],[x])};
 $("bq_salvar").onclick=()=>{
  const dem=$("bq_dem").value.trim(),sexo=$("bq_sexo").value,min=$("bq_min").value===""?null:+$("bq_min").value,max=$("bq_max").value===""?null:+$("bq_max").value;
  if(!dem)return alert("Informe a demanda.");
+ const sel=[...$("pv").querySelectorAll("input:checked")].map(c=>items[c.dataset.k]).filter(x=>x.src!="base");
+ if(!sel.length)return alert("Nenhuma pergunta do banco ou da IA está marcada.");
+ const mp=new Map();sel.forEach(x=>{if(!mp.has(x.st))mp.set(x.st,{t:x.st,qs:[],opt:false});mp.get(x.st).qs.push({q:x.q,n:x.n||"",opt:!!x.opt})});
+ const g2=[...mp.values()],novas=sel.filter(x=>x.src=="ia").length;
  if(min!==null&&max!==null&&min>max)return alert("A idade inicial é maior que a final.");
  const ig=DB.bq.find(b=>norm(b.dem)==norm(dem)&&b.sexo==sexo&&b.min===min&&b.max===max);
- if(ig){if(!confirm("Já existe uma entrada igual no banco. Substituir?"))return;ig.gen=gen;ig.d=Date.now()}
- else DB.bq.push({id:Date.now().toString(36),dem,sexo,min,max,gen,d:Date.now()});
+ if(ig){if(!confirm("Já existe uma entrada igual no banco. Substituir?"))return;ig.gen=g2;ig.novas=novas;ig.d=Date.now()}
+ else DB.bq.push({id:Date.now().toString(36),dem,sexo,min,max,gen:g2,novas,d:Date.now()});
  persist();atualizarDemandas();$("bq_msg").textContent="Salvo no banco ✓";setTimeout(()=>$("bq_msg").textContent="",2500)};
 function renderBanco(){
  const q=norm($("bq_busca").value),L=DB.bq.filter(b=>!q||norm(rotulo(b)).includes(q)).sort(ordem);
- $("bq_lista").innerHTML=L.length?L.map(b=>`<div class="item"><div><b>${esc(rotulo(b))}</b><br><span class="cnt">${nq(b.gen)} perguntas</span><details><summary class="cnt">Ver perguntas</summary>${b.gen.map(s=>"<h3>"+esc(s.t)+"</h3>"+s.qs.map(q=>'<div class="cnt">• '+esc(q.q)+"</div>").join("")).join("")}</details></div><button data-r="${esc(b.id)}">Renomear</button><button data-x="${esc(b.id)}">Excluir</button></div>`).join(""):'<div class="cnt">'+(DB.bq.length?"Nada encontrado para esta busca.":"O banco está vazio. Salve um conjunto na tela de prévia, depois de ler as perguntas do MODO PERGUNTAS.")+"</div>"}
+ $("bq_lista").innerHTML=L.length?L.map(b=>`<div class="item"><div><b>${esc(rotulo(b))}</b><br><span class="cnt">${cont(b)}</span><details><summary class="cnt">Ver perguntas</summary>${b.gen.map(s=>"<h3>"+esc(s.t)+"</h3>"+s.qs.map(q=>'<div class="cnt">• '+esc(q.q)+"</div>").join("")).join("")}</details></div><button data-r="${esc(b.id)}">Renomear</button><button data-x="${esc(b.id)}">Excluir</button></div>`).join(""):'<div class="cnt">'+(DB.bq.length?"Nada encontrado para esta busca.":"O banco está vazio. Salve um conjunto na tela de prévia, depois de ler as perguntas do MODO PERGUNTAS.")+"</div>"}
 function paginaBanco(){$("bq_busca").value="";renderBanco();show("banco")}
 $("bq_busca").oninput=renderBanco;
 $("bq_lista").onclick=e=>{const r=e.target.dataset.r,x=e.target.dataset.x;
@@ -84,7 +89,9 @@ $("bq_lista").onclick=e=>{const r=e.target.dataset.r,x=e.target.dataset.x;
  if(x&&confirm("Excluir este conjunto de perguntas?")){DB.bq=DB.bq.filter(b=>b.id!=x);persist();renderBanco()}};
 $("irbanco").onclick=paginaBanco;
 $("voltarbanco").onclick=home;
-function numerar(){let n=0;$("pv").querySelectorAll("input").forEach(c=>{c.nextElementSibling.firstChild.textContent=c.checked?(++n)+". ":"";c.parentNode.style.opacity=c.checked?1:.45});$("tot").textContent=n+" perguntas no roteiro"}
+function numerar(){let n=0;$("pv").querySelectorAll("input").forEach(c=>{c.nextElementSibling.firstChild.textContent=c.checked?(++n)+". ":"";c.parentNode.style.opacity=c.checked?1:.45});$("tot").textContent=n+" perguntas no roteiro";
+ let nb=0,ni=0;$("pv").querySelectorAll("input:checked").forEach(c=>{const s=items[c.dataset.k].src;if(s=="bd")nb++;if(s=="ia")ni++});
+ $("bq_info").textContent="Será salvo: "+(nb+ni)+" perguntas no total ("+nb+" do banco + "+ni+" novas). Só entram as que estão marcadas."}
 $("pv").onchange=numerar;
 $("montar").onclick=()=>{
  const s=[...$("pv").querySelectorAll("input:checked")].map(c=>{const{t,o,n,q,opt}=items[c.dataset.k];return{t,o,n,q,opt}}),id=Date.now().toString(36);
