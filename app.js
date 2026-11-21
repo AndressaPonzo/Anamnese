@@ -34,13 +34,14 @@ function validar(){
 function previa(g,bd){
  gen=g;
  const off=t=>/fecho|muro/i.test(t);
- const ia=g.flatMap(s=>s.qs.map(x=>({src:"ia",st:s.t,t:"MODO PERGUNTAS · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:off(s.t)})));
- const vistos=new Set(ia.map(x=>norm(x.q))),bi=[];
+ const vistos=new Set(),bi=[];
  bd.forEach(b=>b.gen.forEach(s=>s.qs.forEach(x=>{const k=norm(x.q);if(vistos.has(k))return;vistos.add(k);bi.push({src:"bd",st:s.t,t:"BANCO · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:off(s.t)})})));
+ const ia=g.flatMap(s=>s.qs.filter(x=>!vistos.has(norm(x.q))).map(x=>({src:"ia",st:s.t,t:"MODO PERGUNTAS · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:off(s.t)})));
+ const jatinha=g.reduce((n,s)=>n+s.qs.length,0)-ia.length;
  items=[...BASE.ini.map(x=>({...x,src:"base"})),...bi,...ia,...BASE.fim.map(x=>({...x,src:"base"}))];
  let last="";
  $("pv").innerHTML=items.map((x,k)=>(x.t!=last?(last=x.t,`<h3>${esc(x.t)}</h3>`):"")+`<label class="chk ${x.src=="bd"?"bco":x.src}"><input type="checkbox" data-k="${k}" ${x.off?"":"checked"}><span><b class="num"></b>${x.src=="bd"?'<em class="tag">Banco</em>':""}${esc(x.q)}${x.n?`<br><small>${esc(x.n)}</small>`:""}</span></label>`).join("");
- $("qtd").textContent="Total além da base: "+(bi.length+ia.length)+" perguntas ("+bi.length+" do banco + "+ia.length+" novas) · "+(ia.length?"Novas: "+ia.length+" perguntas geradas pela IA":"nenhuma pergunta nova");
+ $("qtd").textContent=(bd.length?"Entradas do banco usadas: "+bd.map(rotulo).join("; "):"Nenhuma entrada do banco combina com a demanda, o sexo e a idade preenchidos")+". Total além da base: "+(bi.length+ia.length)+" perguntas ("+bi.length+" do banco + "+ia.length+" novas)"+(jatinha?" · "+jatinha+" da IA já estavam no banco":"")+" · "+(ia.length?"Novas: "+ia.length+" perguntas geradas pela IA":"nenhuma pergunta nova")+"."
  $("salvarbanco").hidden=!g.length;
  if(g.length){$("bq_dem").value=$("dem").value.trim();$("bq_sexo").value=$("sexo").value;$("bq_min").value="";$("bq_max").value="";$("bq_msg").textContent=""}
  numerar();show("previa")}
