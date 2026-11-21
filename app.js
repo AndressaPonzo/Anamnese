@@ -5,7 +5,7 @@ try{DB=JSON.parse(localStorage.getItem(K))||DB}catch(e){}
 DB.at=DB.at||[];DB.bq=DB.bq||[];
 const persist=()=>{try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){}};
 const baixar=(txt,nome,tipo)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:tipo+";charset=utf-8"}));a.download=nome;a.click()};
-const show=id=>["home","banco","fluxo","boasvindas","setup","previa","atend","resumo","pretalk","suspiro","regressao","retorno","indicacao","encerramento"].forEach(x=>$(x).hidden=x!=id);
+const show=id=>{["home","banco","fluxo","boasvindas","setup","previa","atend","resumo","pretalk","suspiro","regressao","retorno","indicacao","encerramento"].forEach(x=>$(x).hidden=x!=id);if(id=="setup"||id=="previa")atualizarDemandas()};
 
 /* ---------- Início ---------- */
 function home(){stop();A=null;show("home");
@@ -31,34 +31,41 @@ function validar(){
  if(!$("nome").value.trim()||!$("dem").value.trim()){alert("Preencha o nome e a demanda.");return false}
  if(!$("ok").checked){alert("Confirme o consentimento por escrito do paciente.");return false}
  return true}
-function previa(g,doBanco){
+function previa(g,bd){
  gen=g;
- const ia=gen.flatMap(s=>s.qs.map(x=>({src:"ia",t:"MODO PERGUNTAS · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:/fecho|muro/i.test(s.t)})));
- items=[...BASE.ini.map(x=>({...x,src:"base"})),...ia,...BASE.fim.map(x=>({...x,src:"base"}))];
+ const off=t=>/fecho|muro/i.test(t);
+ const ia=g.flatMap(s=>s.qs.map(x=>({src:"ia",t:"MODO PERGUNTAS · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:off(s.t)})));
+ const vistos=new Set(ia.map(x=>norm(x.q))),bi=[];
+ bd.forEach(b=>b.gen.forEach(s=>s.qs.forEach(x=>{const k=norm(x.q);if(vistos.has(k))return;vistos.add(k);bi.push({src:"bd",t:"BANCO · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:off(s.t)})})));
+ items=[...BASE.ini.map(x=>({...x,src:"base"})),...bi,...ia,...BASE.fim.map(x=>({...x,src:"base"}))];
  let last="";
- $("pv").innerHTML=items.map((x,k)=>(x.t!=last?(last=x.t,`<h3>${esc(x.t)}</h3>`):"")+`<label class="chk ${x.src}"><input type="checkbox" data-k="${k}" ${x.off?"":"checked"}><span><b class="num"></b>${esc(x.q)}${x.n?`<br><small>${esc(x.n)}</small>`:""}</span></label>`).join("");
- $("salvarbanco").hidden=doBanco;
- if(!doBanco){$("bq_dem").value=$("dem").value.trim();$("bq_sexo").value=$("sexo").value;$("bq_min").value="";$("bq_max").value="";$("bq_msg").textContent=""}
+ $("pv").innerHTML=items.map((x,k)=>(x.t!=last?(last=x.t,`<h3>${esc(x.t)}</h3>`):"")+`<label class="chk ${x.src=="bd"?"bco":x.src}"><input type="checkbox" data-k="${k}" ${x.off?"":"checked"}><span><b class="num"></b>${x.src=="bd"?'<em class="tag">Banco</em>':""}${esc(x.q)}${x.n?`<br><small>${esc(x.n)}</small>`:""}</span></label>`).join("");
+ $("qtd").textContent="Total além da base: "+(bi.length+ia.length)+" perguntas ("+bi.length+" do banco + "+ia.length+" novas) · "+(ia.length?"Novas: "+ia.length+" perguntas geradas pela IA":"nenhuma pergunta nova");
+ $("salvarbanco").hidden=!g.length;
+ if(g.length){$("bq_dem").value=$("dem").value.trim();$("bq_sexo").value=$("sexo").value;$("bq_min").value="";$("bq_max").value="";$("bq_msg").textContent=""}
  numerar();show("previa")}
 $("ler").onclick=()=>{
  if(typeof parseRoteiro=="undefined")return alert("Faltam arquivos do site (parser.js). Envie todos os arquivos do pacote.");
  if(!validar())return;
  const g=parseRoteiro($("cola").value);
  if(!g.length)return alert("Não encontrei perguntas no texto colado. Cole a resposta completa do MODO PERGUNTAS.");
- previa(g,false)};
+ previa(g,achar())};
 
 /* ---------- Banco de perguntas ---------- */
 const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
 const faixa=b=>b.min!=null&&b.max!=null?b.min+" a "+b.max+" anos":b.max!=null?"até "+b.max+" anos":b.min!=null?"a partir de "+b.min+" anos":"qualquer idade";
 const rotulo=b=>b.dem+" · "+(b.sexo||"homem ou mulher")+" · "+faixa(b);
 const nq=g=>g.reduce((n,s)=>n+s.qs.length,0);
+const ordem=(x,y)=>norm(x.dem).localeCompare(norm(y.dem),"pt-BR")||String(x.sexo).localeCompare(String(y.sexo))||((x.min??-1)-(y.min??-1))||((x.max??999)-(y.max??999));
+function atualizarDemandas(){const m=new Map();DB.bq.forEach(b=>{const k=norm(b.dem);if(k&&!m.has(k))m.set(k,b.dem.trim())});
+ $("dl_dem").innerHTML=[...m.values()].sort((x,y)=>x.localeCompare(y,"pt-BR")).map(d=>`<option value="${esc(d)}">`).join("")}
 function achar(){
  const d=norm($("dem").value),sx=$("sexo").value,id=$("idade").value===""?null:+$("idade").value;
  if(!d)return[];
- return DB.bq.filter(b=>{const bd=norm(b.dem);return bd&&(d.includes(bd)||bd.includes(d))&&(!b.sexo||!sx||b.sexo==sx)&&(id==null||((b.min==null||id>=b.min)&&(b.max==null||id<=b.max)))})}
+ return DB.bq.filter(b=>{const bd=norm(b.dem);return bd&&(d.includes(bd)||bd.includes(d))&&(!b.sexo||!sx||b.sexo==sx)&&(id==null||((b.min==null||id>=b.min)&&(b.max==null||id<=b.max)))}).sort(ordem)}
 function listarBanco(){const r=achar();
  $("bancolista").innerHTML=!$("dem").value.trim()?'<div class="cnt">Preencha a demanda para procurar no banco.</div>':r.length?r.map(b=>`<div class="item"><div>${esc(rotulo(b))}<br><span class="cnt">${nq(b.gen)} perguntas</span></div><button class="p" data-b="${esc(b.id)}">Usar</button></div>`).join(""):'<div class="cnt">Nenhuma entrada no banco para esta combinação.</div>'}
-$("bancolista").onclick=e=>{const b=e.target.dataset.b;if(!b||!validar())return;const x=DB.bq.find(y=>y.id==b);if(x)previa(JSON.parse(JSON.stringify(x.gen)),true)};
+$("bancolista").onclick=e=>{const b=e.target.dataset.b;if(!b||!validar())return;const x=DB.bq.find(y=>y.id==b);if(x)previa([],[x])};
 $("bq_salvar").onclick=()=>{
  const dem=$("bq_dem").value.trim(),sexo=$("bq_sexo").value,min=$("bq_min").value===""?null:+$("bq_min").value,max=$("bq_max").value===""?null:+$("bq_max").value;
  if(!dem)return alert("Informe a demanda.");
@@ -66,13 +73,15 @@ $("bq_salvar").onclick=()=>{
  const ig=DB.bq.find(b=>norm(b.dem)==norm(dem)&&b.sexo==sexo&&b.min===min&&b.max===max);
  if(ig){if(!confirm("Já existe uma entrada igual no banco. Substituir?"))return;ig.gen=gen;ig.d=Date.now()}
  else DB.bq.push({id:Date.now().toString(36),dem,sexo,min,max,gen,d:Date.now()});
- persist();$("bq_msg").textContent="Salvo no banco ✓";setTimeout(()=>$("bq_msg").textContent="",2500)};
-function paginaBanco(){
- $("bq_lista").innerHTML=DB.bq.length?DB.bq.slice().reverse().map(b=>`<div class="item"><div><b>${esc(rotulo(b))}</b><br><span class="cnt">${nq(b.gen)} perguntas</span><details><summary class="cnt">Ver perguntas</summary>${b.gen.map(s=>"<h3>"+esc(s.t)+"</h3>"+s.qs.map(q=>'<div class="cnt">• '+esc(q.q)+"</div>").join("")).join("")}</details></div><button data-r="${esc(b.id)}">Renomear</button><button data-x="${esc(b.id)}">Excluir</button></div>`).join(""):'<div class="cnt">O banco está vazio. Salve um conjunto na tela de prévia, depois de ler as perguntas do MODO PERGUNTAS.</div>';
- show("banco")}
+ persist();atualizarDemandas();$("bq_msg").textContent="Salvo no banco ✓";setTimeout(()=>$("bq_msg").textContent="",2500)};
+function renderBanco(){
+ const q=norm($("bq_busca").value),L=DB.bq.filter(b=>!q||norm(rotulo(b)).includes(q)).sort(ordem);
+ $("bq_lista").innerHTML=L.length?L.map(b=>`<div class="item"><div><b>${esc(rotulo(b))}</b><br><span class="cnt">${nq(b.gen)} perguntas</span><details><summary class="cnt">Ver perguntas</summary>${b.gen.map(s=>"<h3>"+esc(s.t)+"</h3>"+s.qs.map(q=>'<div class="cnt">• '+esc(q.q)+"</div>").join("")).join("")}</details></div><button data-r="${esc(b.id)}">Renomear</button><button data-x="${esc(b.id)}">Excluir</button></div>`).join(""):'<div class="cnt">'+(DB.bq.length?"Nada encontrado para esta busca.":"O banco está vazio. Salve um conjunto na tela de prévia, depois de ler as perguntas do MODO PERGUNTAS.")+"</div>"}
+function paginaBanco(){$("bq_busca").value="";renderBanco();show("banco")}
+$("bq_busca").oninput=renderBanco;
 $("bq_lista").onclick=e=>{const r=e.target.dataset.r,x=e.target.dataset.x;
- if(r){const b=DB.bq.find(y=>y.id==r),n=prompt("Nome da demanda:",b.dem);if(n&&n.trim()){b.dem=n.trim();persist();paginaBanco()}}
- if(x&&confirm("Excluir este conjunto de perguntas?")){DB.bq=DB.bq.filter(b=>b.id!=x);persist();paginaBanco()}};
+ if(r){const b=DB.bq.find(y=>y.id==r),n=prompt("Nome da demanda:",b.dem);if(n&&n.trim()){b.dem=n.trim();persist();renderBanco()}}
+ if(x&&confirm("Excluir este conjunto de perguntas?")){DB.bq=DB.bq.filter(b=>b.id!=x);persist();renderBanco()}};
 $("irbanco").onclick=paginaBanco;
 $("voltarbanco").onclick=home;
 function numerar(){let n=0;$("pv").querySelectorAll("input").forEach(c=>{c.nextElementSibling.firstChild.textContent=c.checked?(++n)+". ":"";c.parentNode.style.opacity=c.checked?1:.45});$("tot").textContent=n+" perguntas no roteiro"}

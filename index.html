@@ -4,10 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Anamnese por voz</title>
-<link rel="stylesheet" href="estilo.css?v=15">
+<link rel="stylesheet" href="estilo.css?v=16">
 </head>
 <body>
 <main>
+  <datalist id="dl_dem"></datalist>
+
   <section id="home">
     <div class="card">
       <h1>Anamnese por voz</h1>
@@ -29,6 +31,7 @@
     <div class="card">
       <h1>Banco de perguntas</h1>
       <div class="cnt">Conjuntos de perguntas salvos por demanda, sexo e faixa etária. Eles entram no backup.</div>
+      <input id="bq_busca" type="text" placeholder="Procurar (demanda, homem, mulher, idade…)" style="margin-top:10px">
       <div id="bq_lista"></div>
     </div>
     <div class="row"><button id="voltarbanco">← Início</button></div>
@@ -126,7 +129,7 @@
       <div class="sec">Etapa 2 da sessão · Novo paciente</div>
       <h1>Anamnese – Entrevista de mapeamento</h1>
       <input id="nome" type="text" placeholder="Nome do paciente (fica só neste aparelho)">
-      <input id="dem" type="text" placeholder="Demanda, como o paciente nomeou (ex.: síndrome do pânico)">
+      <input id="dem" type="text" list="dl_dem" autocomplete="off" placeholder="Demanda, como o paciente nomeou (ex.: síndrome do pânico)">
       <div class="row" style="margin:0">
         <select id="sexo" class="g"><option value="">Sexo (opcional)</option><option>homem</option><option>mulher</option></select>
         <input id="idade" type="number" min="0" max="120" placeholder="Idade (opcional)" class="g">
@@ -156,14 +159,15 @@
   <section id="previa" hidden>
     <div class="card">
       <h1>Confira as perguntas</h1>
-      <div class="cnt"><span class="lg base"></span> Base da sua anamnese &nbsp; <span class="lg ia"></span> Geradas pelo MODO PERGUNTAS &nbsp;·&nbsp; <b id="tot"></b></div>
+      <div class="cnt"><span class="lg base"></span> Base da sua anamnese &nbsp; <span class="lg ia"></span> Geradas pelo MODO PERGUNTAS &nbsp; <span class="lg bco"></span> Do banco de perguntas &nbsp;·&nbsp; <b id="tot"></b></div>
+      <div class="cnt" id="qtd" style="margin-top:6px"></div>
       <div class="cnt" style="margin-top:6px">Esta é a ordem final. Desmarque as repetidas, de qualquer cor. A pergunta do muro da IA vem desmarcada, porque a exploração do muro da base já cobre.</div>
       <div id="pv"></div>
     </div>
     <div class="card f" id="salvarbanco">
       <h2>Salvar no banco de perguntas</h2>
       <div class="cnt">Guarda as perguntas geradas pelo MODO PERGUNTAS para reutilizar com pacientes de perfil parecido. Confira se nenhuma traz dado pessoal deste paciente. Deixe as idades em branco para valer para qualquer idade.</div>
-      <input id="bq_dem" type="text" placeholder="Demanda (ex.: ansiedade)">
+      <input id="bq_dem" type="text" list="dl_dem" autocomplete="off" placeholder="Demanda (ex.: ansiedade)">
       <div class="row" style="margin:0">
         <select id="bq_sexo" class="g"><option value="">Homem ou mulher</option><option value="homem">Homem</option><option value="mulher">Mulher</option></select>
         <input id="bq_min" type="number" min="0" max="120" placeholder="Idade de" class="g">
@@ -335,11 +339,11 @@
     <div class="card apoio"><ul><li>Agradecer o paciente pela abertura e pela participação durante toda a sessão.</li><li>Colocar-se à disposição para acompanhar a jornada do paciente daqui em diante.</li><li>Desejar uma boa semana e confirmar a data da próxima sessão e a forma de pagamento combinadas.</li></ul></div>
     <div class="row"><button data-go="indicacao">← Indicação do protocolo</button><button data-go="fluxo">☰ Fluxo da sessão</button><button data-go="home">Início</button></div>
   </section>
-  <div class="cnt" style="text-align:center;margin:20px 0">versão 15</div>
+  <div class="cnt" style="text-align:center;margin:20px 0">versão 16</div>
 </main>
 <script>window.onerror=function(m,s,l){var d=document.createElement("div");d.style.cssText="background:#c0392b;color:#fff;padding:10px;font:14px sans-serif";d.textContent="Erro no site: "+m+" ("+String(s).split("/").pop()+":"+l+")";document.body.prepend(d)}</script>
-<script src="roteiros/base.js?v=15"></script>
-<script src="parser.js?v=15"></script>
-<script src="app.js?v=15"></script>
+<script src="roteiros/base.js?v=16"></script>
+<script src="parser.js?v=16"></script>
+<script src="app.js?v=16"></script>
 </body>
 </html>
