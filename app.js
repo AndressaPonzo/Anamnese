@@ -8,7 +8,7 @@ const baixar=(txt,nome,tipo)=>{const a=document.createElement("a");a.href=URL.cr
 const show=id=>{["home","banco","fluxo","boasvindas","setup","previa","atend","resumo","pretalk","devolutiva","suspiro","regressao","retorno","indicacao","encerramento"].forEach(x=>$(x).hidden=x!=id);if(id=="setup"||id=="previa")atualizarDemandas();if(id=="pretalk"||id=="devolutiva"||id=="suspiro"||id=="regressao")carregarSessao(id)};
 
 /* ---------- Início ---------- */
-function home(){stop();A=null;$("sc_cola").value="";$("sc_ok").value="";show("home");
+function home(){stop();A=null;$("sc_cola").value="";$("sc_ok").value="";$("sc_resp").value="";show("home");
  $("lista").innerHTML=DB.at.length?DB.at.slice().reverse().map(a=>`<div class="item"><div><b>${esc(a.nome||"Sem nome")}</b><br><span class="cnt">${esc(a.dem||"")} · ${new Date(a.d).toLocaleString("pt-BR")}</span></div><button data-o="${esc(a.id)}">Abrir</button><button data-x="${esc(a.id)}">Excluir</button></div>`).join(""):'<div class="cnt">Nenhum atendimento salvo neste aparelho.</div>'}
 $("lista").onclick=e=>{const o=e.target.dataset.o,x=e.target.dataset.x;
  if(o)abrir(o);
@@ -184,11 +184,13 @@ function carregarSessao(id){
   const t=sessaoTxt(),p=partesSessao(t);
   $("rg_muro").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Cole-a na página Explicação da Técnica antes de iniciar."):p.muro?htmlSessao(p.muro):vazio("Não encontrei a Lista do Muro no texto colado.")}
  if(id=="suspiro"){
+  $("sc_resp").value=A?A.rs||"":$("sc_resp").value;
   const t=sessaoTxt(),p=partesSessao(t);
   $("sc_muro").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Cole-a na página Explicação da Técnica antes de iniciar."):p.itens.length?p.itens.map(l=>"<p>"+md(l)+"</p>").join(""):vazio(p.achouMuro?"Encontrei “LISTA DO MURO”, mas não achei itens (linhas numeradas ou entre aspas) logo abaixo.":"Não encontrei “LISTA DO MURO” no texto colado.");
   $("sc_script").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Volte à página Explicação da Técnica antes de iniciar e cole a resposta no campo do final."):p.script?p.script.split(/\r?\n/).filter(l=>l.trim()).map(l=>"<p>“"+md(l.trim())+"”</p>").join(""):vazio("Não encontrei o Script de Confiança (item 3, Briefing pré-regressão) no texto colado.")}}
 $("sc_cola").oninput=()=>{if(A){A.sc=$("sc_cola").value;persist()}};
 $("sc_ok").oninput=()=>{if(A){A.fs=$("sc_ok").value;persist()}};
+$("sc_resp").oninput=()=>{if(A){A.rs=$("sc_resp").value;persist()}};
 $("voltarsuspiro").onclick=()=>show("suspiro");
 
 /* ---------- Navegação do fluxo: qualquer botão com data-go ---------- */

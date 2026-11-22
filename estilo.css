@@ -65,3 +65,4 @@ small{color:var(--mu)}
 .tr .sit{font-weight:600}
 .tr .acao p{margin:6px 0 0}
 .tr .nota{font-style:italic;color:var(--mu);font-size:15px}
+.vermelho{color:var(--rec);font-weight:600}
