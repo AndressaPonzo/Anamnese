@@ -156,11 +156,19 @@ function partesSessao(t){
  const m=t.search(/SCRIPT DE CONFIAN[ÇC]A/);
  if(m>=0){const r=t.slice(m),q=r.search(/[“"]/);
   if(q>=0){const resto=r.slice(q+1),f=resto.search(/[”"][ \t]*(\r?\n|$)/);script=(f>=0?resto.slice(0,f):resto).trim()}}
- let muro="";
- if(i>=0){const r=t.slice(i),f=r.search(/^\s*2\.\s+DECIS[ÃA]O CL[ÍI]NICA/im),b=f>0?r.slice(0,f):r;muro=b.slice(b.indexOf("\n")+1).trim()}
- return{dev,achouMuro:i>=0,script,muro,itens:muro.split(/\r?\n/).map(l=>l.trim()).filter(l=>/^\d+[.)]\s+\S/.test(l))}}
+ let muro="";const itens=[];
+ if(i>=0){
+  const corpo=[];let coletando=true;
+  for(const l0 of t.slice(i).split(/\r\n|\n|\r/).slice(1)){
+   const l=l0.trim().replace(/\*\*/g,"");
+   if(/DECIS[ÃA]O CL[ÍI]NICA/i.test(l))break;
+   corpo.push(l0);
+   if(/^(Frase[- ]alavanca|Oferta)\b/i.test(l))coletando=false;
+   if(coletando&&/^(\d+\s*[.):\-–]\s*\S|[-•*◦]\s+[“"]|[“"])/.test(l))itens.push((itens.length+1)+". "+l.replace(/^(\d+\s*[.):\-–]\s*|[-•*◦]\s+)/,""))}
+  muro=corpo.join("\n").trim()}
+ return{dev,achouMuro:i>=0,script,muro,itens}}
 function htmlSessao(t){
- return String(t).split(/\r?\n/).map(l=>l.trim()).filter(l=>l&&!/^[-–—_*]{3,}$/.test(l)).map(l=>{
+ return String(t).split(/\r\n|\n|\r/).map(l=>l.trim()).filter(l=>l&&!/^[-–—_*]{3,}$/.test(l)).map(l=>{
   if(/^\p{Extended_Pictographic}/u.test(l)||/^\d+\.\s+[A-ZÀ-Ý][A-ZÀ-Ý\s:,.\-]+$/.test(l))return"<h3>"+md(l)+"</h3>";
   return"<p>"+md(l.replace(/^[•◦*-]\s+/,"• "))+"</p>"}).join("")}
 /*FIMPURO*/
@@ -177,7 +185,7 @@ function carregarSessao(id){
   $("rg_muro").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Cole-a na página Explicação da Técnica antes de iniciar."):p.muro?htmlSessao(p.muro):vazio("Não encontrei a Lista do Muro no texto colado.")}
  if(id=="suspiro"){
   const t=sessaoTxt(),p=partesSessao(t);
-  $("sc_muro").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Cole-a na página Explicação da Técnica antes de iniciar."):p.itens.length?p.itens.map(l=>"<p>"+md(l)+"</p>").join(""):vazio("Não encontrei itens numerados na Lista do Muro do texto colado.");
+  $("sc_muro").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Cole-a na página Explicação da Técnica antes de iniciar."):p.itens.length?p.itens.map(l=>"<p>"+md(l)+"</p>").join(""):vazio(p.achouMuro?"Encontrei “LISTA DO MURO”, mas não achei itens (linhas numeradas ou entre aspas) logo abaixo.":"Não encontrei “LISTA DO MURO” no texto colado.");
   $("sc_script").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Volte à página Explicação da Técnica antes de iniciar e cole a resposta no campo do final."):p.script?p.script.split(/\r?\n/).filter(l=>l.trim()).map(l=>"<p>“"+md(l.trim())+"”</p>").join(""):vazio("Não encontrei o Script de Confiança (item 3, Briefing pré-regressão) no texto colado.")}}
 $("sc_cola").oninput=()=>{if(A){A.sc=$("sc_cola").value;persist()}};
 $("sc_ok").oninput=()=>{if(A){A.fs=$("sc_ok").value;persist()}};

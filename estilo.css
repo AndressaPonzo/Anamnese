@@ -61,3 +61,7 @@ small{color:var(--mu)}
 .fala{border-left:4px solid var(--bd);border-radius:6px;padding:8px 12px;margin:10px 0 0}
 .fala.t{border-left-color:var(--ac);background:var(--bgi)}
 .fala.p{border-left-color:var(--base);background:var(--bgb);margin-left:18px}
+.tr{border-left:4px solid var(--ac);background:var(--bgi);border-radius:6px;padding:8px 12px;margin-top:10px}
+.tr .sit{font-weight:600}
+.tr .acao p{margin:6px 0 0}
+.tr .nota{font-style:italic;color:var(--mu);font-size:15px}
