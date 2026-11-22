@@ -66,3 +66,4 @@ small{color:var(--mu)}
 .tr .acao p{margin:6px 0 0}
 .tr .nota{font-style:italic;color:var(--mu);font-size:15px}
 .vermelho{color:var(--rec);font-weight:600}
+.campo{min-height:90px;margin-top:6px}

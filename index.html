@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Anamnese por voz</title>
-<link rel="stylesheet" href="estilo.css?v=26">
+<link rel="stylesheet" href="estilo.css?v=27">
 </head>
 <body>
 <main>
@@ -343,15 +343,41 @@
       <h2>1. Memória referencial</h2>
       <h3>O que fazer</h3>
       <p>Escolha uma cena recente e real, relacionada à queixa do paciente.</p>
-      <ul><li>Se a queixa é emocional, procure o último episódio forte.</li><li>Se é uma queixa física, procure o dia em que o sintoma piorou.</li><li>Se está relacionada a algo que o paciente evita, procure uma situação concreta dentro desse contexto.</li><li>Se envolve uma pessoa, procure a última cena com ela.</li></ul>
-      <p>Coloque o paciente dentro da situação, em vez de pedir que apenas conte o que aconteceu.</p>
-      <h3>Pergunte</h3>
-      <ul><li>“Você está aí. O que sente?”</li><li>“Qual é a sensação?”</li><li>“O que está acontecendo?”</li><li>“Quais sentimentos aparecem?”</li><li>“Que reações físicas você percebe?”</li></ul>
-      <p>Aprofunde até identificar o sentimento mais intenso, utilizando as palavras do próprio paciente.</p>
+      <details><summary>Queixa emocional</summary><div class="aplic">
+<p>Procure o último episódio forte.</p>
+<p class="fala t">“Qual foi a última vez que você sentiu isso?”</p>
+</div></details>
+      <details><summary>Queixa física</summary><div class="aplic">
+<p>Procure o dia em que o sintoma piorou.</p>
+<p class="fala t">“Teve alguma coisa nas últimas semanas que doeu mais?”</p>
+</div></details>
+      <details><summary>Queixa relacionada a algo que o paciente evita</summary><div class="aplic">
+<p>Procure uma situação concreta dentro desse contexto.</p>
+<p class="fala t">“Imagina que você está aí no meio da academia.”</p>
+</div></details>
+      <details><summary>Queixa envolvendo uma pessoa</summary><div class="aplic">
+<p>Procure a última cena com ela.</p>
+<p class="fala t">“A última vez que a sua mãe reclamou de tudo…”</p>
+</div></details>
+      <div class="cnt" style="margin-top:10px">Resposta da anamnese: Em quais situações isso costuma aparecer?</div><textarea class="campo" data-rg="sit" placeholder="Resposta do paciente na anamnese"></textarea>
+      <div class="cnt" style="margin-top:10px">Resposta da anamnese: Qual sentimento aparece com mais intensidade nessas situações?</div><textarea class="campo" data-rg="sent" placeholder="Resposta do paciente na anamnese"></textarea>
+      <p class="fala t">“Agora quero que você volte àquela situação <b>*</b> que você me contou.<br>Você não vai apenas lembrar do que aconteceu. Imagine-se novamente naquele momento.”</p>
+      <p class="fala t">“Você está aí. O que sente? Qual é a sensação? O que está acontecendo?”</p>
+      <div class="cnt" style="margin-top:10px">Respostas do paciente</div><textarea class="campo" data-rg="ref1" placeholder="Registre as respostas do paciente"></textarea>
+      <p class="fala t">“Perceba as sensações do seu corpo, os sentimentos, e me fala quais sentimentos aparecem? Que reações físicas você percebe? Quais pensamentos?”</p>
+      <div class="cnt" style="margin-top:10px">Respostas do paciente</div><textarea class="campo" data-rg="ref2" placeholder="Registre as respostas do paciente"></textarea>
+      <details><summary>Aprofunde até o sentimento mais intenso</summary><div class="aplic">
+<p>Aprofunde até achar o sentimento mais intenso. Nunca confie no primeiro sentimento: o que aparece primeiro costuma ser o muro (a raiva, por exemplo), e por baixo está o fio (o medo).</p>
+<ul><li>“Medo do quê, exatamente?”</li><li>“E por baixo disso, o que mais você sente?”</li><li>“Tem mais alguma reação no corpo que aparece?”</li><li>“Se isso acontecer, o que você tem receio que possa acontecer?”</li><li>“Qual é o principal sentimento que está aí agora?”</li></ul>
+<p>Use as palavras dela de volta: “tenho medo” → “medo do quê?”; “tenho raiva” → “raiva do quê?”.</p>
+<p>Avance quando você tiver o sentimento mais intenso e o corpo estiver ativado. Se a pessoa está neutra na referência, a sessão não vai a lugar nenhum: troque a referência.</p>
+<p>Nunca: pergunte “o que você está vendo?” (pergunte pela sensação) e nunca atualize a memória referencial. Ela é a prova, no fim, de que o trabalho funcionou.</p>
+</div></details>
       <h3>Material que você utiliza do MODO SESSÃO</h3>
       <ul><li>Ficha de Partida, como referência para compreender as situações relacionadas à queixa.</li><li>Lista do Muro, para compreender o que o paciente evita ou teme.</li><li>Palavras-âncora, para retomar a linguagem dele.</li></ul>
       <p class="aviso"><b>Atenção:</b> uma situação candidata da Ficha de Partida não é automaticamente a Memória referencial. Ela precisa corresponder a uma cena concreta e recente.</p>
       <details><summary>Lista do Muro</summary><div class="aplic" id="rg_muro"></div></details>
+      <details><summary>Ficha de Partida</summary><div class="aplic" id="rg_ficha"></div></details>
       <details><summary>Aplicação</summary><div class="aplic">
 <p>Aqui você não vai escolher uma lembrança da infância. Vai trabalhar com uma situação recente e específica relacionada à queixa.</p>
 <p>No exemplo, a paciente relata medo de filas, lugares fechados e viagens. O MODO SESSÃO apresenta situações candidatas, mas você precisa confirmar qual episódio realmente aconteceu e provocou ativação.</p>
@@ -376,12 +402,21 @@
     <div class="card apoio">
       <h2>2. Ponte ao passado</h2>
       <h3>O que fazer</h3>
-      <p>Depois de identificar o sentimento mais intenso, conduza a sequência descrita no manual:</p>
-      <ul><li>Peça ao paciente que se conecte com aquele sentimento.</li><li>Faça a contagem de 10 a 1.</li><li>Ao chegar ao final, faça as perguntas automáticas, uma de cada vez:<ol><li>“Você tem a sensação de dia ou noite?”</li><li>“Você tem a sensação de estar sozinho ou acompanhado?”</li><li>“Qual a idade, mais ou menos?”</li><li>“Quais são os sentimentos aí?”</li></ol></li></ul>
+      <p class="fala t">“Se conecte com esse [sentimento]. Eu vou contar de dez a um. Essa sensação te leva lá no passado, na primeira vez que você sentiu ele. Você não precisa lembrar de nada. Mesmo que você não lembre quando foi a primeira vez, o teu corpo já lembrou. Você não precisa ter certeza se é real ou não, apenas permita-se ir, porque a sensação já está no teu corpo. Voltando: dez, nove, oito. Essa sensação te leva lá para o passado. Sete, seis, cinco. Voltando. Quatro, três, dois, um.”</p>
+      <ol><li>“Você tem a sensação de dia ou noite?”</li><li>“Você tem a sensação de estar sozinho ou acompanhado?”</li><li>“Qual a idade, mais ou menos?”</li><li>“Quais são os sentimentos aí?”</li></ol>
       <p>Depois, aprofunde com perguntas como:</p>
-      <ul><li>“Medo do quê?”</li><li>“O que mais você sente?”</li><li>“Qual é a sensação de estar nesse ambiente?”</li><li>“Tem mais algum sentimento?”</li></ul>
-      <p>Registre as experiências relatadas, as idades e os sentimentos. Se houver outra associação anterior, o manual orienta repetir a condução.</p>
-      <p>Ao terminar, traga o paciente de volta ao presente.</p>
+      <ul><li>“Medo do quê?”</li><li>“O que mais você sente?”</li><li>“Qual é a sensação de estar nesse ambiente?”</li><li>“Tem mais algum sentimento?”</li><li>“Tem algo a mais aí que você sente, está pensando ou percebendo e queira me falar?”</li></ul>
+      <div class="cnt" style="margin-top:10px">O que ela fala</div><textarea class="campo" data-rg="pp1" placeholder="Registre o que o paciente fala"></textarea>
+      <h3>Desça de novo</h3>
+      <p class="fala t">“Perceba a sensação de [desprotegido, rejeitado]. A gente já volta nessa memória dos seis anos. Mas antes eu vou contar de dez a um, e essa sensação vai te levar antes dos seis anos, na primeira vez que você se sentiu assim. Voltando: dez, nove, oito. Voltando mais jovem agora. Sete, seis, cinco. Quatro, três, dois, um. Deixa o corpo contar a história. Dia ou noite?”</p>
+      <details><summary>Perguntas</summary><div class="aplic">
+<ul><li>“Você tem a sensação de dia ou noite?”</li><li>“Você tem a sensação de estar sozinho ou acompanhado?”</li><li>“Qual a idade, mais ou menos?”</li><li>“Quais são os sentimentos aí?”</li></ul>
+<p>Depois, aprofunde com perguntas como:</p>
+<ul><li>“Medo do quê?”</li><li>“O que mais você sente?”</li><li>“Qual é a sensação de estar nesse ambiente?”</li><li>“Tem mais algum sentimento?”</li></ul>
+</div></details>
+      <div class="cnt" style="margin-top:10px">Resposta do paciente</div><textarea class="campo" data-rg="pp2" placeholder="Registre a resposta do paciente"></textarea>
+      <h3>Pare de descer</h3>
+      <p class="fala t">“Pode se desconectar da memória. Sente teu corpo aí na cadeira. Escuta minha voz, vai se conectando com o presente.”</p>
       <h3>Material que você utiliza</h3>
       <ul><li>O sentimento mais intenso identificado na Memória referencial.</li><li>As respostas e os relatos que surgirem durante essa exploração.</li></ul>
       <p class="aviso"><b>Importante:</b> os relatos obtidos nesse processo são experiências subjetivas do paciente, não comprovação de que os acontecimentos ocorreram exatamente daquela maneira.</p>
@@ -586,11 +621,11 @@
     <div class="card apoio"><ul><li>Agradecer o paciente pela abertura e pela participação durante toda a sessão.</li><li>Colocar-se à disposição para acompanhar a jornada do paciente daqui em diante.</li><li>Desejar uma boa semana e confirmar a data da próxima sessão e a forma de pagamento combinadas.</li></ul></div>
     <div class="row"><button data-go="indicacao">← Indicação do protocolo</button><button data-go="fluxo">☰ Fluxo da sessão</button><button data-go="home">Início</button></div>
   </section>
-  <div class="cnt" style="text-align:center;margin:20px 0">versão 26</div>
+  <div class="cnt" style="text-align:center;margin:20px 0">versão 27</div>
 </main>
 <script>window.onerror=function(m,s,l){var d=document.createElement("div");d.style.cssText="background:#c0392b;color:#fff;padding:10px;font:14px sans-serif";d.textContent="Erro no site: "+m+" ("+String(s).split("/").pop()+":"+l+")";document.body.prepend(d)}</script>
-<script src="roteiros/base.js?v=26"></script>
-<script src="parser.js?v=26"></script>
-<script src="app.js?v=26"></script>
+<script src="roteiros/base.js?v=27"></script>
+<script src="parser.js?v=27"></script>
+<script src="app.js?v=27"></script>
 </body>
 </html>
