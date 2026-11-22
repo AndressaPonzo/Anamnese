@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Anamnese por voz</title>
-<link rel="stylesheet" href="estilo.css?v=23">
+<link rel="stylesheet" href="estilo.css?v=24">
 </head>
 <body>
 <main>
@@ -297,13 +297,31 @@
 
     <div class="card leitura">
       <h2>Parte 1 · Guie a respiração</h2>
-      <p>“Pode fechar os olhos. Puxa o ar duas vezes pelo nariz e solta lento, observando bem o movimento do seu corpo.”</p>
-      <p>“Puxa duas e solta lento. Sempre observando o movimento do corpo. Você vai entrando em sintonia com o teu corpo. Mas esse corpo não vai relaxar.”</p>
+      <p>“Agora nós vamos começar. Pode fechar os olhos.<br>Puxa o ar duas vezes pelo nariz e solta lentamente, observando o movimento do seu corpo.”</p>
+      <div class="cnt" style="margin-top:12px">Você aguarda a respiração e continua:</div>
+      <p>“Puxa duas vezes e solta devagar. Sempre observando o movimento do corpo.<br>Não importa se você consegue lembrar de alguma coisa. Não importa se você não consegue nomear exatamente o que está sentindo. Eu quero que você observe seu corpo e me fale o que está sentindo.”</p>
     </div>
 
     <div class="card leitura">
-      <h2>Parte 2 · Script de Confiança</h2>
+      <h2>Parte 2 · Palavras-âncora: me fale o que está sentindo quando</h2>
+      <p>“Quando você fala s___, perceba o que acontece no seu corpo.<br>Quando fala q___, observe o que aparece.<br>Quando pensa ___, perceba o que sente.<br>E quando fala sobre ___, observe o seu corpo.”</p>
+      <div class="cnt" style="margin-top:12px">Use os itens da Lista do Muro, vindos da resposta do MODO SESSÃO:</div>
+      <div id="sc_muro"></div>
+      <div class="cnt" style="margin-top:12px">Aguarde a resposta do paciente e complemente:</div>
+      <p>“Perceba essa sensação. Não precisa mudar nada. Apenas observe.”</p>
+    </div>
+
+    <div class="card leitura">
+      <h2>Parte 3 · Script de Confiança</h2>
       <div id="sc_script"></div>
+    </div>
+
+    <div class="card apoio">
+      <h2>Parte 4 · Continuar o suspiro fisiológico</h2>
+      <p>Continuar o suspiro fisiológico, sem transformar a respiração em uma indução ou em um exercício de relaxamento profundo.</p>
+      <p>Perguntar ao paciente como ele se sente.</p>
+      <p>Verificar duas coisas:</p>
+      <ol><li>A paciente está observando o corpo?</li><li>Você está ativando com as palavras que ela própria utilizou?</li></ol>
     </div>
 
     <div class="row">
@@ -546,11 +564,11 @@
     <div class="card apoio"><ul><li>Agradecer o paciente pela abertura e pela participação durante toda a sessão.</li><li>Colocar-se à disposição para acompanhar a jornada do paciente daqui em diante.</li><li>Desejar uma boa semana e confirmar a data da próxima sessão e a forma de pagamento combinadas.</li></ul></div>
     <div class="row"><button data-go="indicacao">← Indicação do protocolo</button><button data-go="fluxo">☰ Fluxo da sessão</button><button data-go="home">Início</button></div>
   </section>
-  <div class="cnt" style="text-align:center;margin:20px 0">versão 23</div>
+  <div class="cnt" style="text-align:center;margin:20px 0">versão 24</div>
 </main>
 <script>window.onerror=function(m,s,l){var d=document.createElement("div");d.style.cssText="background:#c0392b;color:#fff;padding:10px;font:14px sans-serif";d.textContent="Erro no site: "+m+" ("+String(s).split("/").pop()+":"+l+")";document.body.prepend(d)}</script>
-<script src="roteiros/base.js?v=23"></script>
-<script src="parser.js?v=23"></script>
-<script src="app.js?v=23"></script>
+<script src="roteiros/base.js?v=24"></script>
+<script src="parser.js?v=24"></script>
+<script src="app.js?v=24"></script>
 </body>
 </html>
