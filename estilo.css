@@ -67,3 +67,8 @@ small{color:var(--mu)}
 .tr .nota{font-style:italic;color:var(--mu);font-size:15px}
 .vermelho{color:var(--rec);font-weight:600}
 .campo{min-height:90px;margin-top:6px}
+.duas{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;margin-top:12px}
+.duas details{margin-top:0}
+@media(max-width:420px){.duas{grid-template-columns:1fr}}
+[data-idade],[data-eco]{font-weight:600;color:var(--ac)}
+.falta{color:var(--rec)!important}

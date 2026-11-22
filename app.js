@@ -8,7 +8,7 @@ const baixar=(txt,nome,tipo)=>{const a=document.createElement("a");a.href=URL.cr
 const show=id=>{["home","banco","fluxo","boasvindas","setup","previa","atend","resumo","pretalk","devolutiva","suspiro","regressao","retorno","indicacao","encerramento"].forEach(x=>$(x).hidden=x!=id);if(id=="setup"||id=="previa")atualizarDemandas();if(id=="pretalk"||id=="devolutiva"||id=="suspiro"||id=="regressao")carregarSessao(id)};
 
 /* ---------- Início ---------- */
-function home(){stop();A=null;$("sc_cola").value="";$("sc_ok").value="";$("sc_resp").value="";document.querySelectorAll("[data-rg]").forEach(x=>x.value="");show("home");
+function home(){stop();A=null;$("sc_cola").value="";$("sc_ok").value="";$("sc_resp").value="";document.querySelectorAll("[data-rg]").forEach(x=>x.value="");dinamicos();show("home");
  $("lista").innerHTML=DB.at.length?DB.at.slice().reverse().map(a=>`<div class="item"><div><b>${esc(a.nome||"Sem nome")}</b><br><span class="cnt">${esc(a.dem||"")} · ${new Date(a.d).toLocaleString("pt-BR")}</span></div><button data-o="${esc(a.id)}">Abrir</button><button data-x="${esc(a.id)}">Excluir</button></div>`).join(""):'<div class="cnt">Nenhum atendimento salvo neste aparelho.</div>'}
 $("lista").onclick=e=>{const o=e.target.dataset.o,x=e.target.dataset.x;
  if(o)abrir(o);
@@ -169,6 +169,15 @@ function partesSessao(t){
  let ficha="";const fi=t.search(/SUGEST[ÃA]O DE FICHA DE PARTIDA/i);
  if(fi>=0)ficha=t.slice(fi).split(/\r\n|\n|\r/).slice(1).join("\n").trim();
  return{dev,achouMuro:i>=0,script,muro,itens,ficha}}
+function idadeTxt(t){
+ const NUM={um:1,uma:1,dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10,onze:11,doze:12,treze:13,quatorze:14,catorze:14,quinze:15,dezesseis:16,dezessete:17,dezoito:18,dezenove:19,vinte:20,trinta:30,quarenta:40,cinquenta:50,sessenta:60,setenta:70,oitenta:80,noventa:90};
+ const x=String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ const val=w=>{w=w.trim();if(/^\d{1,3}$/.test(w))return+w;const p=w.split(/\s+e\s+/);return p.length&&p.every(q=>NUM[q]!=null)?p.reduce((s,q)=>s+NUM[q],0):null};
+ const fmt=(n,m)=>m?n+(n==1?" mês":" meses"):n+(n==1?" ano":" anos");
+ for(const m of x.matchAll(/((?:vinte|trinta|quarenta|cinquenta|sessenta|setenta|oitenta|noventa)\s+e\s+[a-z]+|\d{1,3}|[a-z]+)\s*(anos?|mes(?:es)?)\b/g)){const n=val(m[1]);if(n!=null)return fmt(n,m[2][0]=="m")}
+ const d=x.match(/\b(\d{1,3})\b/);if(d)return fmt(+d[1],false);
+ for(const w of x.split(/[^a-z]+/)){if(NUM[w]!=null&&w!="um"&&w!="uma")return fmt(NUM[w],false)}
+ return""}
 function htmlSessao(t){
  return String(t).split(/\r\n|\n|\r/).map(l=>l.trim()).filter(l=>l&&!/^[-–—_*]{3,}$/.test(l)).map(l=>{
   if(/^\p{Extended_Pictographic}/u.test(l)||/^\d+\.\s+[A-ZÀ-Ý][A-ZÀ-Ý\s:,.\-]+$/.test(l))return"<h3>"+md(l)+"</h3>";
@@ -176,7 +185,11 @@ function htmlSessao(t){
 /*FIMPURO*/
 const resp=txt=>{if(!A)return"";const k=A.s.findIndex(s=>norm(s.q).includes(norm(txt)));return k>=0?(A.a[k]||""):""};
 const PREF={sit:()=>resp("Em quais situações isso costuma aparecer"),sent:()=>resp("Qual sentimento aparece com mais intensidade")};
-document.querySelectorAll("[data-rg]").forEach(x=>x.oninput=()=>{if(A){A.rg=A.rg||{};A.rg[x.dataset.rg]=x.value;persist()}});
+function dinamicos(){
+ const v=k=>{const x=document.querySelector('[data-rg="'+k+'"]');return x?x.value:""};
+ document.querySelectorAll("[data-idade]").forEach(s=>{const i=idadeTxt(v(s.dataset.idade));s.textContent=i||"[idade]";s.classList.toggle("falta",!i)});
+ document.querySelectorAll("[data-eco]").forEach(s=>{const t=v(s.dataset.eco).trim();s.textContent=t||"[preencha a Memória C]";s.classList.toggle("falta",!t)})}
+document.querySelectorAll("[data-rg]").forEach(x=>x.oninput=()=>{if(A){A.rg=A.rg||{};A.rg[x.dataset.rg]=x.value;persist()}dinamicos()});
 const sessaoTxt=()=>A?(A.sc||""):$("sc_cola").value;
 const vazio=m=>'<p class="cnt">'+m+"</p>";
 function carregarSessao(id){
@@ -189,6 +202,7 @@ function carregarSessao(id){
   const t=sessaoTxt(),p=partesSessao(t);
   $("rg_ficha").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Cole-a na página Explicação da Técnica antes de iniciar."):p.ficha?htmlSessao(p.ficha):vazio("Não encontrei “SUGESTÃO DE FICHA DE PARTIDA” no texto colado.");
   document.querySelectorAll("[data-rg]").forEach(x=>{if(A){const k=x.dataset.rg;x.value=A.rg&&A.rg[k]!=null?A.rg[k]:(PREF[k]?PREF[k]():"")}});
+  dinamicos();
   $("rg_muro").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Cole-a na página Explicação da Técnica antes de iniciar."):p.muro?htmlSessao(p.muro):vazio("Não encontrei a Lista do Muro no texto colado.")}
  if(id=="suspiro"){
   $("sc_resp").value=A?A.rs||"":$("sc_resp").value;
