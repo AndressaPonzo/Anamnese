@@ -5,10 +5,10 @@ try{DB=JSON.parse(localStorage.getItem(K))||DB}catch(e){}
 DB.at=DB.at||[];DB.bq=DB.bq||[];
 const persist=()=>{try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){}};
 const baixar=(txt,nome,tipo)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:tipo+";charset=utf-8"}));a.download=nome;a.click()};
-const show=id=>{["home","banco","fluxo","boasvindas","setup","previa","atend","resumo","pretalk","suspiro","regressao","retorno","indicacao","encerramento"].forEach(x=>$(x).hidden=x!=id);if(id=="setup"||id=="previa")atualizarDemandas()};
+const show=id=>{["home","banco","fluxo","boasvindas","setup","previa","atend","resumo","pretalk","devolutiva","suspiro","regressao","retorno","indicacao","encerramento"].forEach(x=>$(x).hidden=x!=id);if(id=="setup"||id=="previa")atualizarDemandas();if(id=="pretalk"||id=="devolutiva"||id=="suspiro")carregarSessao(id)};
 
 /* ---------- Início ---------- */
-function home(){stop();A=null;show("home");
+function home(){stop();A=null;$("sc_cola").value="";$("sc_ok").value="";show("home");
  $("lista").innerHTML=DB.at.length?DB.at.slice().reverse().map(a=>`<div class="item"><div><b>${esc(a.nome||"Sem nome")}</b><br><span class="cnt">${esc(a.dem||"")} · ${new Date(a.d).toLocaleString("pt-BR")}</span></div><button data-o="${esc(a.id)}">Abrir</button><button data-x="${esc(a.id)}">Excluir</button></div>`).join(""):'<div class="cnt">Nenhum atendimento salvo neste aparelho.</div>'}
 $("lista").onclick=e=>{const o=e.target.dataset.o,x=e.target.dataset.x;
  if(o)abrir(o);
@@ -145,44 +145,40 @@ $("voltarperg").onclick=()=>show("atend");
 $("irpretalk").onclick=()=>show("pretalk");
 $("voltarresumo").onclick=()=>show("resumo");
 
-/* ---------- Suspiro fisiológico e Script de Confiança ---------- */
+/* ---------- Resposta do MODO SESSÃO, devolutiva e script de confiança ---------- */
 const md=s=>esc(s).replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");
-function leitura(){
- $("sc_leitura").innerHTML=$("sc_cola").value.split(/\r?\n/).map(l=>l.trim()).filter(l=>l&&!/^[-–—_*]{3,}$/.test(l)).map(l=>{
-  const h=l.match(/^#{1,6}\s*(.+)$/);
-  return h?"<h3>"+md(h[1])+"</h3>":"<p>"+md(l.replace(/^[-*•]\s+/,"• "))+"</p>"}).join("")}
-function modoLeitura(on){$("sc_edit").hidden=on;$("sc_ler").hidden=!on}
-function abrirSuspiro(){
- $("sc_aviso").hidden=!!A;
- $("sc_cola").value=A?A.sc||"":$("sc_cola").value;$("sc_ok").value=A?A.fs||"":$("sc_ok").value;
- if($("sc_cola").value.trim()){leitura();modoLeitura(true)}else modoLeitura(false);
- show("suspiro")}
-$("irsuspiro").onclick=abrirSuspiro;
-// Os dois atalhos da tela Pré-talk devem abrir a mesma página.
-const preTalk=$("pretalk");
-if(preTalk){
-  preTalk.addEventListener("click",e=>{
-    const btn=e.target.closest("button");
-    if(!btn)return;
-    const texto=(btn.textContent||"").trim().toLocaleLowerCase("pt-BR");
-    if(texto.includes("suspiro fisiológico")||texto.includes("script de confiança")){
-      e.preventDefault();
-      abrirSuspiro();
-    }
-  });
-}
+/*PURO*/
+function partesSessao(t){
+ t=String(t||"");
+ const i=t.search(/LISTA DO MURO/i);
+ const dev=(i>=0?t.slice(0,t.lastIndexOf("\n",i)+1):t).trim();
+ let script="";
+ const m=t.search(/SCRIPT DE CONFIAN[ÇC]A/);
+ if(m>=0){const r=t.slice(m),q=r.search(/[“"]/);
+  if(q>=0){const resto=r.slice(q+1),f=resto.search(/[”"][ \t]*(\r?\n|$)/);script=(f>=0?resto.slice(0,f):resto).trim()}}
+ return{dev,achouMuro:i>=0,script}}
+function htmlSessao(t){
+ return String(t).split(/\r?\n/).map(l=>l.trim()).filter(l=>l&&!/^[-–—_*]{3,}$/.test(l)).map(l=>{
+  if(/^\p{Extended_Pictographic}/u.test(l)||/^\d+\.\s+[A-ZÀ-Ý][A-ZÀ-Ý\s:,.\-]+$/.test(l))return"<h3>"+md(l)+"</h3>";
+  return"<p>"+md(l.replace(/^[•◦*-]\s+/,"• "))+"</p>"}).join("")}
+/*FIMPURO*/
+const sessaoTxt=()=>A?(A.sc||""):$("sc_cola").value;
+const vazio=m=>'<p class="cnt">'+m+"</p>";
+function carregarSessao(id){
+ if(id=="pretalk"){$("sc_cola").value=A?A.sc||"":$("sc_cola").value;$("sc_aviso").hidden=!!A}
+ if(id=="devolutiva"){
+  const t=sessaoTxt(),p=partesSessao(t);
+  $("dv_texto").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Volte à página Explicação da Técnica antes de iniciar e cole a resposta no campo do final."):(p.achouMuro?"":vazio("Não encontrei “LISTA DO MURO” no texto colado. Mostrando o texto inteiro."))+htmlSessao(p.dev);
+  $("sc_ok").value=A?A.fs||"":$("sc_ok").value}
+ if(id=="suspiro"){
+  const t=sessaoTxt(),p=partesSessao(t);
+  $("sc_script").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Volte à página Explicação da Técnica antes de iniciar e cole a resposta no campo do final."):p.script?p.script.split(/\r?\n/).filter(l=>l.trim()).map(l=>"<p>“"+md(l.trim())+"”</p>").join(""):vazio("Não encontrei o Script de Confiança (item 3, Briefing pré-regressão) no texto colado.")}}
 $("sc_cola").oninput=()=>{if(A){A.sc=$("sc_cola").value;persist()}};
 $("sc_ok").oninput=()=>{if(A){A.fs=$("sc_ok").value;persist()}};
-$("sc_exibir").onclick=()=>{
- if(!$("sc_cola").value.trim())return alert("Cole primeiro a resposta do MODO SESSÃO.");
- if(A){A.sc=$("sc_cola").value;persist()}leitura();modoLeitura(true)};
-$("sc_editar").onclick=()=>modoLeitura(false);
-$("voltarpretalk").onclick=()=>show("pretalk");
-$("irregressao").onclick=()=>show("regressao");
 $("voltarsuspiro").onclick=()=>show("suspiro");
 
 /* ---------- Navegação do fluxo: qualquer botão com data-go ---------- */
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
  const p=b.dataset.go;stop();
- if(p=="home")home();else if(p=="suspiro")abrirSuspiro();else show(p)});
+ if(p=="home")home();else show(p)});
 home();

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Anamnese por voz</title>
-<link rel="stylesheet" href="estilo.css?v=20">
+<link rel="stylesheet" href="estilo.css?v=21">
 </head>
 <body>
 <main>
@@ -46,11 +46,12 @@
         <button data-go="boasvindas"><span class="n">1</span><span>Boas Vindas, Apresentação do Método e explicação da sessão</span></button>
         <button data-go="setup"><span class="n">2</span><span>Anamnese – Entrevista de mapeamento</span></button>
         <button data-go="pretalk"><span class="n">3</span><span>Explicação da Técnica antes de iniciar</span></button>
-        <button data-go="suspiro"><span class="n">4</span><span>Suspiro fisiológico e Devolutiva do Mapeamento</span></button>
-        <button data-go="regressao"><span class="n">5</span><span>Regressão e Atualização de memórias</span></button>
-        <button data-go="retorno"><span class="n">6</span><span>Retorno ao presente e Fechamento Clínico</span></button>
-        <button data-go="indicacao"><span class="n">7</span><span>Indicação do protocolo e fechamento da Venda</span></button>
-        <button data-go="encerramento"><span class="n">8</span><span>Encerramento da sessão</span></button>
+        <button data-go="devolutiva"><span class="n">4</span><span>Devolutiva do Mapeamento</span></button>
+        <button data-go="suspiro"><span class="n">5</span><span>Suspiro fisiológico</span></button>
+        <button data-go="regressao"><span class="n">6</span><span>Regressão e Atualização de memórias</span></button>
+        <button data-go="retorno"><span class="n">7</span><span>Retorno ao presente e Fechamento Clínico</span></button>
+        <button data-go="indicacao"><span class="n">8</span><span>Indicação do protocolo e fechamento da Venda</span></button>
+        <button data-go="encerramento"><span class="n">9</span><span>Encerramento da sessão</span></button>
       </div>
     </div>
     <div class="row"><button data-go="home">← Início</button></div>
@@ -249,16 +250,48 @@
       <p>Nesse caso, a sensação é a parte mais confiável que nós temos. A mente, ela prega umas peças na gente, a mente nos engana. É por isso que você sofre tanto aqui no presente: porque você cria projeções com a mente, e essas previsões alteram a forma que o teu corpo reage, você fica ansiosa. Então a mente, ela mente; o corpo não. O corpo é o que a gente precisa solucionar. Então nós vamos deixar esse corpo trazer a resposta automática, trazer essa sensação à tona.”</p>
     </div>
 
+    <div class="card">
+      <h2>Resposta do MODO SESSÃO</h2>
+      <div class="cnt">Cole aqui a resposta completa do MODO SESSÃO. Ela fica salva neste atendimento e alimenta as próximas páginas (devolutiva e script de confiança).</div>
+      <div class="cnt" id="sc_aviso" hidden>Nenhum atendimento aberto: o texto colado não será salvo.</div>
+      <textarea id="sc_cola" style="min-height:220px;margin-top:8px" placeholder="Cole a resposta completa do MODO SESSÃO"></textarea>
+    </div>
+
     <div class="row">
-      <button id="irsuspiro" class="p g">Suspiro fisiológico e Devolutiva do Mapeamento →</button>
+      <button class="p g" data-go="devolutiva">Devolutiva do Mapeamento →</button>
       <button id="voltarresumo">← Voltar ao resumo</button>
+    </div>
+  </section>
+
+  <section id="devolutiva" hidden>
+    <div class="card">
+      <div class="sec">Etapa 4 da sessão</div>
+      <h1>Devolutiva do Mapeamento</h1>
+      <div class="cnt">Leia a devolutiva para o paciente. O texto vem da resposta do MODO SESSÃO colada na página anterior, do começo até a Lista do Muro.</div>
+    </div>
+
+    <div class="card leitura">
+      <div id="dv_texto"></div>
+    </div>
+
+    <div class="card">
+      <h2>O mapeamento faz sentido para o paciente?</h2>
+      <h2>O que mais chamou sua atenção ao ouvir essa leitura?</h2>
+      <div class="cnt">Registre o que o paciente respondeu depois da leitura.</div>
+      <textarea id="sc_ok" style="margin-top:8px" placeholder="Ex.: faz sentido; faz sentido em parte; o que não fez sentido"></textarea>
+    </div>
+
+    <div class="row">
+      <button class="p g" data-go="suspiro">Suspiro fisiológico →</button>
+      <button data-go="pretalk">← Voltar à explicação da técnica</button>
+      <button data-go="fluxo">☰ Fluxo da sessão</button>
     </div>
   </section>
 
   <section id="suspiro" hidden>
     <div class="card">
-      <div class="sec">Etapa 4 da sessão · Preparação</div>
-      <h1>Suspiro fisiológico e Devolutiva do Mapeamento</h1>
+      <div class="sec">Etapa 5 da sessão · Preparação</div>
+      <h1>Suspiro fisiológico</h1>
       <div class="cnt">Peça para a pessoa se sentar confortavelmente e fechar os olhos. Guie a respiração e, durante o suspiro, leia o Script de Confiança.</div>
     </div>
 
@@ -268,36 +301,21 @@
       <p>“Puxa duas e solta lento. Sempre observando o movimento do corpo. Você vai entrando em sintonia com o teu corpo. Mas esse corpo não vai relaxar.”</p>
     </div>
 
-    <div class="card">
-      <h2>Parte 2 · Devolutiva do Mapeamento (Script de Confiança)</h2>
-      <div class="cnt" id="sc_aviso" hidden>Nenhum atendimento aberto: o texto colado não será salvo.</div>
-      <div id="sc_edit">
-        <div class="cnt">Cole aqui a resposta do MODO SESSÃO. Ela fica salva neste atendimento.</div>
-        <textarea id="sc_cola" style="min-height:220px;margin-top:8px" placeholder="Cole a resposta completa do MODO SESSÃO"></textarea>
-        <div class="row"><button id="sc_exibir" class="p g">Exibir para leitura</button></div>
-      </div>
-      <div id="sc_ler" class="leitura" hidden>
-        <div id="sc_leitura"></div>
-        <div class="row"><button id="sc_editar">Editar texto colado</button></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Faz sentido para você?</h2>
-      <h2>O que mais chamou sua atenção ao ouvir essa leitura?</h2>
-      <div class="cnt">Registre o que o paciente respondeu depois da leitura.A segunda pergunta ajuda a perceber o que mobilizou a paciente e pode oferecer uma referência para iniciar a regressão.</div>
-      <textarea id="sc_ok" style="margin-top:8px" placeholder="Ex.: faz sentido; faz sentido em parte; o que não fez sentido"></textarea>
+    <div class="card leitura">
+      <h2>Parte 2 · Script de Confiança</h2>
+      <div id="sc_script"></div>
     </div>
 
     <div class="row">
-      <button id="irregressao" class="p g">Regressão e Atualização de memórias →</button>
-      <button id="voltarpretalk">← Voltar à explicação da técnica</button>
+      <button class="p g" data-go="regressao">Regressão e Atualização de memórias →</button>
+      <button data-go="devolutiva">← Voltar à devolutiva</button>
+      <button data-go="fluxo">☰ Fluxo da sessão</button>
     </div>
   </section>
 
   <section id="regressao" hidden>
     <div class="card">
-      <div class="sec">Etapa 5 da sessão</div>
+      <div class="sec">Etapa 6 da sessão</div>
       <h1>Regressão e Atualização de memórias</h1>
       <div class="cnt">Conteúdo em desenvolvimento. Será detalhado a partir do Guia dos 7 Passos RB7.</div>
     </div>
@@ -306,12 +324,12 @@
     <div class="card apoio"><h2>3. Realidade radical</h2><div>Provar à criança que ela sobreviveu.</div></div>
     <div class="card apoio"><h2>4. Revivência neutra</h2><div>Passar pelo caos de novo sem o corpo apitar.</div></div>
     <div class="card apoio"><h2>5. Verificação final</h2><div>Voltar à referência e conferir no corpo.</div></div>
-    <div class="row"><button class="p g" data-go="retorno">Retorno ao presente e Fechamento Clínico →</button><button id="voltarsuspiro">← Voltar ao Suspiro e Devolutiva</button><button data-go="fluxo">☰ Fluxo da sessão</button></div>
+    <div class="row"><button class="p g" data-go="retorno">Retorno ao presente e Fechamento Clínico →</button><button id="voltarsuspiro">← Voltar ao Suspiro fisiológico</button><button data-go="fluxo">☰ Fluxo da sessão</button></div>
   </section>
 
   <section id="retorno" hidden>
     <div class="card">
-      <div class="sec">Etapa 6 da sessão</div>
+      <div class="sec">Etapa 7 da sessão</div>
       <h1>Retorno ao presente e Fechamento Clínico</h1>
       <div class="cnt">Conteúdo em desenvolvimento.</div>
     </div>
@@ -324,7 +342,7 @@
 
   <section id="indicacao" hidden>
     <div class="card">
-      <div class="sec">Etapa 7 da sessão</div>
+      <div class="sec">Etapa 8 da sessão</div>
       <h1>Indicação do protocolo e fechamento da Venda</h1>
       <div class="cnt">Conteúdo em desenvolvimento.</div>
     </div>
@@ -334,18 +352,18 @@
 
   <section id="encerramento" hidden>
     <div class="card">
-      <div class="sec">Etapa 8 da sessão</div>
+      <div class="sec">Etapa 9 da sessão</div>
       <h1>Encerramento da sessão</h1>
       <div class="cnt">Conteúdo em desenvolvimento.</div>
     </div>
     <div class="card apoio"><ul><li>Agradecer o paciente pela abertura e pela participação durante toda a sessão.</li><li>Colocar-se à disposição para acompanhar a jornada do paciente daqui em diante.</li><li>Desejar uma boa semana e confirmar a data da próxima sessão e a forma de pagamento combinadas.</li></ul></div>
     <div class="row"><button data-go="indicacao">← Indicação do protocolo</button><button data-go="fluxo">☰ Fluxo da sessão</button><button data-go="home">Início</button></div>
   </section>
-  <div class="cnt" style="text-align:center;margin:20px 0">versão 20</div>
+  <div class="cnt" style="text-align:center;margin:20px 0">versão 21</div>
 </main>
 <script>window.onerror=function(m,s,l){var d=document.createElement("div");d.style.cssText="background:#c0392b;color:#fff;padding:10px;font:14px sans-serif";d.textContent="Erro no site: "+m+" ("+String(s).split("/").pop()+":"+l+")";document.body.prepend(d)}</script>
-<script src="roteiros/base.js?v=20"></script>
-<script src="parser.js?v=20"></script>
-<script src="app.js?v=20"></script>
+<script src="roteiros/base.js?v=21"></script>
+<script src="parser.js?v=21"></script>
+<script src="app.js?v=21"></script>
 </body>
 </html>
