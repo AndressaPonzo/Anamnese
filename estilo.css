@@ -54,3 +54,10 @@ small{color:var(--mu)}
 .apoio p{margin:8px 0 0}
 .apoio h3{margin:14px 0 2px}
 .apoio .aviso{border-left:4px solid var(--ac);background:var(--bgi);border-radius:6px;padding:8px 12px;margin-top:12px}
+.apoio details{border:1px solid var(--bd);border-radius:8px;margin-top:12px;padding:0 14px}
+.apoio summary{cursor:pointer;font-weight:600;color:var(--ac);padding:10px 0}
+.apoio details[open]>summary{border-bottom:1px solid var(--bd);margin-bottom:6px}
+.apoio .aplic{padding-bottom:12px}
+.fala{border-left:4px solid var(--bd);border-radius:6px;padding:8px 12px;margin:10px 0 0}
+.fala.t{border-left-color:var(--ac);background:var(--bgi)}
+.fala.p{border-left-color:var(--base);background:var(--bgb);margin-left:18px}

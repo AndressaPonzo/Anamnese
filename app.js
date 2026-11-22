@@ -5,7 +5,7 @@ try{DB=JSON.parse(localStorage.getItem(K))||DB}catch(e){}
 DB.at=DB.at||[];DB.bq=DB.bq||[];
 const persist=()=>{try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){}};
 const baixar=(txt,nome,tipo)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:tipo+";charset=utf-8"}));a.download=nome;a.click()};
-const show=id=>{["home","banco","fluxo","boasvindas","setup","previa","atend","resumo","pretalk","devolutiva","suspiro","regressao","retorno","indicacao","encerramento"].forEach(x=>$(x).hidden=x!=id);if(id=="setup"||id=="previa")atualizarDemandas();if(id=="pretalk"||id=="devolutiva"||id=="suspiro")carregarSessao(id)};
+const show=id=>{["home","banco","fluxo","boasvindas","setup","previa","atend","resumo","pretalk","devolutiva","suspiro","regressao","retorno","indicacao","encerramento"].forEach(x=>$(x).hidden=x!=id);if(id=="setup"||id=="previa")atualizarDemandas();if(id=="pretalk"||id=="devolutiva"||id=="suspiro"||id=="regressao")carregarSessao(id)};
 
 /* ---------- Início ---------- */
 function home(){stop();A=null;$("sc_cola").value="";$("sc_ok").value="";show("home");
@@ -156,7 +156,9 @@ function partesSessao(t){
  const m=t.search(/SCRIPT DE CONFIAN[ÇC]A/);
  if(m>=0){const r=t.slice(m),q=r.search(/[“"]/);
   if(q>=0){const resto=r.slice(q+1),f=resto.search(/[”"][ \t]*(\r?\n|$)/);script=(f>=0?resto.slice(0,f):resto).trim()}}
- return{dev,achouMuro:i>=0,script}}
+ let muro="";
+ if(i>=0){const r=t.slice(i),f=r.search(/^\s*2\.\s+DECIS[ÃA]O CL[ÍI]NICA/im),b=f>0?r.slice(0,f):r;muro=b.slice(b.indexOf("\n")+1).trim()}
+ return{dev,achouMuro:i>=0,script,muro}}
 function htmlSessao(t){
  return String(t).split(/\r?\n/).map(l=>l.trim()).filter(l=>l&&!/^[-–—_*]{3,}$/.test(l)).map(l=>{
   if(/^\p{Extended_Pictographic}/u.test(l)||/^\d+\.\s+[A-ZÀ-Ý][A-ZÀ-Ý\s:,.\-]+$/.test(l))return"<h3>"+md(l)+"</h3>";
@@ -170,6 +172,9 @@ function carregarSessao(id){
   const t=sessaoTxt(),p=partesSessao(t);
   $("dv_texto").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Volte à página Explicação da Técnica antes de iniciar e cole a resposta no campo do final."):(p.achouMuro?"":vazio("Não encontrei “LISTA DO MURO” no texto colado. Mostrando o texto inteiro."))+htmlSessao(p.dev);
   $("sc_ok").value=A?A.fs||"":$("sc_ok").value}
+ if(id=="regressao"){
+  const t=sessaoTxt(),p=partesSessao(t);
+  $("rg_muro").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Cole-a na página Explicação da Técnica antes de iniciar."):p.muro?htmlSessao(p.muro):vazio("Não encontrei a Lista do Muro no texto colado.")}
  if(id=="suspiro"){
   const t=sessaoTxt(),p=partesSessao(t);
   $("sc_script").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Volte à página Explicação da Técnica antes de iniciar e cole a resposta no campo do final."):p.script?p.script.split(/\r?\n/).filter(l=>l.trim()).map(l=>"<p>“"+md(l.trim())+"”</p>").join(""):vazio("Não encontrei o Script de Confiança (item 3, Briefing pré-regressão) no texto colado.")}}
