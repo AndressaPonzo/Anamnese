@@ -50,3 +50,7 @@ small{color:var(--mu)}
 .chk.bco{border-left:4px solid var(--bco);background:var(--bgc)}
 .lg.bco{background:var(--bco)}
 .tag{font-style:normal;font-size:12px;font-weight:600;color:#fff;background:var(--bco);border-radius:4px;padding:1px 6px;margin-right:6px;vertical-align:1px}
+.apoio ol{margin:8px 0 0;padding-left:22px}
+.apoio p{margin:8px 0 0}
+.apoio h3{margin:14px 0 2px}
+.apoio .aviso{border-left:4px solid var(--ac);background:var(--bgi);border-radius:6px;padding:8px 12px;margin-top:12px}
