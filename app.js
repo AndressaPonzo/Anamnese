@@ -188,7 +188,7 @@ const PREF={sit:()=>resp("Em quais situações isso costuma aparecer"),sent:()=>
 function dinamicos(){
  const v=k=>{const x=document.querySelector('[data-rg="'+k+'"]');return x?x.value:""};
  document.querySelectorAll("[data-idade]").forEach(s=>{const i=idadeTxt(v(s.dataset.idade));s.textContent=i||"[idade]";s.classList.toggle("falta",!i)});
- document.querySelectorAll("[data-eco]").forEach(s=>{const t=v(s.dataset.eco).trim();s.textContent=t||"[preencha a Memória C]";s.classList.toggle("falta",!t)})}
+ document.querySelectorAll("[data-eco]").forEach(s=>{const t=v(s.dataset.eco).trim();s.textContent=t||"[preencha a Memória "+(s.dataset.eco=="pp1"?"B":"C")+"]";s.classList.toggle("falta",!t)})}
 document.querySelectorAll("[data-rg]").forEach(x=>x.oninput=()=>{if(A){A.rg=A.rg||{};A.rg[x.dataset.rg]=x.value;persist()}dinamicos()});
 const sessaoTxt=()=>A?(A.sc||""):$("sc_cola").value;
 const vazio=m=>'<p class="cnt">'+m+"</p>";
