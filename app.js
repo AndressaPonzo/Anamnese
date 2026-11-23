@@ -1,3 +1,15 @@
+/* Ajusta a base fixa (idempotente): vale mesmo que o roteiros/base.js do site seja o antigo. */
+(function(){
+ if(typeof BASE=="undefined")return;
+ const ini=BASE.ini,DBT="Dados básicos e contexto de vida",QT="Identificação da queixa principal";
+ const dados=ini.find(x=>x.t==DBT),queixa=ini.find(x=>x.t==QT);
+ const ab=ini.find(x=>x.t=="Abertura e acolhimento"||x.fala);
+ if(ab&&dados){ab.t=DBT;ab.o=dados.o;ab.n=dados.n;ab.fala=true}
+ const i1=ini.findIndex(x=>x.q=="Seus pais são vivos?"),i2=ini.findIndex(x=>x.q.startsWith("Como é sua relação com seu pai e sua mãe"));
+ if(i1>=0&&i2>=0){ini[i1].q+="\n"+ini[i2].q;ini.splice(i2,1)}
+ const ip=ini.findIndex(x=>x.q.startsWith("O que fez você procurar ajuda"));
+ if(ip>=0&&queixa){const[pa]=ini.splice(ip,1);pa.t=QT;pa.o=queixa.o;pa.n=queixa.n;ini.splice(ini.map(x=>x.t).lastIndexOf(QT)+1,0,pa)}
+})();
 const K="anamnese_v3",$=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let DB={at:[]},A=null,steps=[],i=0,rec=null,on=false,gen=[],items=[];
