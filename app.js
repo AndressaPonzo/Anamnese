@@ -8,7 +8,7 @@ const baixar=(txt,nome,tipo)=>{const a=document.createElement("a");a.href=URL.cr
 const show=id=>{["home","banco","fluxo","boasvindas","setup","previa","atend","resumo","pretalk","devolutiva","suspiro","regressao","retorno","indicacao","encerramento"].forEach(x=>$(x).hidden=x!=id);if(id=="setup"||id=="previa")atualizarDemandas();if(id=="pretalk"||id=="devolutiva"||id=="suspiro"||id=="regressao")carregarSessao(id)};
 
 /* ---------- Início ---------- */
-function home(){stop();A=null;$("sc_cola").value="";$("sc_ok").value="";$("sc_resp").value="";document.querySelectorAll("[data-rg]").forEach(x=>x.value="");dinamicos();show("home");
+function home(){stop();A=null;$("sc_cola").value="";$("sc_ok").value="";$("sc_resp").value="";document.querySelectorAll("[data-rg]").forEach(x=>x.value="");document.querySelectorAll("input[data-rgr]").forEach(x=>x.checked=false);dinamicos();show("home");
  $("lista").innerHTML=DB.at.length?DB.at.slice().reverse().map(a=>`<div class="item"><div><b>${esc(a.nome||"Sem nome")}</b><br><span class="cnt">${esc(a.dem||"")} · ${new Date(a.d).toLocaleString("pt-BR")}</span></div><button data-o="${esc(a.id)}">Abrir</button><button data-x="${esc(a.id)}">Excluir</button></div>`).join(""):'<div class="cnt">Nenhum atendimento salvo neste aparelho.</div>'}
 $("lista").onclick=e=>{const o=e.target.dataset.o,x=e.target.dataset.x;
  if(o)abrir(o);
@@ -185,6 +185,10 @@ function htmlSessao(t){
 /*FIMPURO*/
 const resp=txt=>{if(!A)return"";const k=A.s.findIndex(s=>norm(s.q).includes(norm(txt)));return k>=0?(A.a[k]||""):""};
 const PREF={sit:()=>resp("Em quais situações isso costuma aparecer"),sent:()=>resp("Qual sentimento aparece com mais intensidade")};
+document.querySelectorAll("input[data-rgr]").forEach(x=>x.onchange=()=>{
+ const k=x.dataset.rgr;
+ if(x.checked)document.querySelectorAll('input[data-rgr="'+k+'"]').forEach(y=>{if(y!==x)y.checked=false});
+ if(A){A.rg=A.rg||{};A.rg[k]=x.checked?x.value:"";persist()}});
 function dinamicos(){
  const v=k=>{const x=document.querySelector('[data-rg="'+k+'"]');return x?x.value:""};
  document.querySelectorAll("[data-idade]").forEach(s=>{const i=idadeTxt(v(s.dataset.idade));s.textContent=i||"[idade]";s.classList.toggle("falta",!i)});
@@ -202,6 +206,7 @@ function carregarSessao(id){
   const t=sessaoTxt(),p=partesSessao(t);
   $("rg_ficha").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Cole-a na página Explicação da Técnica antes de iniciar."):p.ficha?htmlSessao(p.ficha):vazio("Não encontrei “SUGESTÃO DE FICHA DE PARTIDA” no texto colado.");
   document.querySelectorAll("[data-rg]").forEach(x=>{if(A){const k=x.dataset.rg;x.value=A.rg&&A.rg[k]!=null?A.rg[k]:(PREF[k]?PREF[k]():"")}});
+  if(A)document.querySelectorAll("input[data-rgr]").forEach(x=>{x.checked=!!(A.rg&&A.rg[x.dataset.rgr]==x.value)});
   dinamicos();
   $("rg_muro").innerHTML=!t.trim()?vazio("Nenhuma resposta do MODO SESSÃO foi colada. Cole-a na página Explicação da Técnica antes de iniciar."):p.muro?htmlSessao(p.muro):vazio("Não encontrei a Lista do Muro no texto colado.")}
  if(id=="suspiro"){

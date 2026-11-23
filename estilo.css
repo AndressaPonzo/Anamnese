@@ -73,3 +73,5 @@ small{color:var(--mu)}
 [data-idade],[data-eco]{font-weight:600;color:var(--ac)}
 .falta{color:var(--rec)!important}
 .sep{border:0;border-top:1px solid var(--bd);margin:18px 0 6px}
+.neut label{margin-right:18px;cursor:pointer}
+.neut input{margin-right:6px}
