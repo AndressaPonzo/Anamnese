@@ -35,10 +35,12 @@ function previa(g,bd){
  gen=g;
  const off=t=>/fecho|muro/i.test(t);
  const vistos=new Set(),bi=[];
- bd.forEach(b=>b.gen.forEach(s=>s.qs.forEach(x=>{const k=norm(x.q);if(vistos.has(k))return;vistos.add(k);bi.push({src:"bd",st:s.t,t:"BANCO · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:off(s.t)})})));
+ bd.forEach(b=>b.gen.forEach(s=>s.qs.forEach(x=>{const k=norm(x.q);if(vistos.has(k))return;vistos.add(k);bi.push({src:"bd",st:s.t,t:"MODO PERGUNTAS · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:off(s.t)})})));
  const ia=g.flatMap(s=>s.qs.filter(x=>!vistos.has(norm(x.q))).map(x=>({src:"ia",st:s.t,t:"MODO PERGUNTAS · "+s.t,o:"",n:x.n,q:x.q,opt:x.opt,off:off(s.t)})));
  const jatinha=g.reduce((n,s)=>n+s.qs.length,0)-ia.length;
- items=[...BASE.ini.map(x=>({...x,src:"base"})),...bi,...ia,...BASE.fim.map(x=>({...x,src:"base"}))];
+ const secs=[];[...ia,...bi].forEach(x=>{const k=norm(x.st);if(!secs.some(z=>z.k==k))secs.push({k,t:"MODO PERGUNTAS · "+x.st})});
+ const meio=secs.flatMap(z=>[...bi.filter(x=>norm(x.st)==z.k),...ia.filter(x=>norm(x.st)==z.k)].map(x=>({...x,t:z.t})));
+ items=[...BASE.ini.map(x=>({...x,src:"base"})),...meio,...BASE.fim.map(x=>({...x,src:"base"}))];
  let last="";
  $("pv").innerHTML=items.map((x,k)=>(x.t!=last?(last=x.t,`<h3>${esc(x.t)}</h3>`):"")+`<label class="chk ${x.src=="bd"?"bco":x.src}"><input type="checkbox" data-k="${k}" ${x.off?"":"checked"}><span><b class="num"></b>${x.src=="bd"?'<em class="tag">Banco</em>':""}${esc(x.q)}${x.n?`<br><small>${esc(x.n)}</small>`:""}</span></label>`).join("");
  qinfo=(bd.length?"Entradas do banco usadas: "+bd.map(rotulo).join("; "):"Nenhuma entrada do banco combina com a demanda, o sexo e a idade preenchidos")+". Listadas: "+(bi.length+ia.length)+" perguntas ("+bi.length+" do banco + "+ia.length+" novas)"+(jatinha?"; "+jatinha+" da IA já estavam no banco":"")+". "
@@ -96,37 +98,54 @@ $("bq_lista").onclick=e=>{const r=e.target.dataset.r,x=e.target.dataset.x;
 $("irbanco").onclick=paginaBanco;
 $("voltarbanco").onclick=home;
 let qinfo="";
-function numerar(){let n=0;$("pv").querySelectorAll("input").forEach(c=>{c.nextElementSibling.firstChild.textContent=c.checked?(++n)+". ":"";c.parentNode.style.opacity=c.checked?1:.45});$("tot").textContent=n+" perguntas no roteiro";
+function numerar(){let n=0;$("pv").querySelectorAll("input").forEach(c=>{c.nextElementSibling.firstChild.textContent=c.checked&&!items[c.dataset.k].fala?(++n)+". ":"";c.parentNode.style.opacity=c.checked?1:.45});$("tot").textContent=n+" perguntas no roteiro";
  let nb=0,ni=0;$("pv").querySelectorAll("input:checked").forEach(c=>{const s=items[c.dataset.k].src;if(s=="bd")nb++;if(s=="ia")ni++});
  $("qtd").textContent=qinfo+"Marcadas agora: "+(nb+ni)+" perguntas ("+nb+" do banco + "+ni+" novas).";
  $("bq_info").textContent="Será salvo: "+(nb+ni)+" perguntas no total ("+nb+" do banco + "+ni+" novas). Só entram as que estão marcadas."}
 $("pv").onchange=numerar;
 $("montar").onclick=()=>{
- const s=[...$("pv").querySelectorAll("input:checked")].map(c=>{const{t,o,n,q,opt}=items[c.dataset.k];return{t,o,n,q,opt}}),id=Date.now().toString(36);
+ const s=[...$("pv").querySelectorAll("input:checked")].map(c=>{const{t,o,n,q,opt,fala}=items[c.dataset.k];return fala?{t,o,n,q,opt,fala}:{t,o,n,q,opt}}),id=Date.now().toString(36);
  DB.at.push({id,nome:$("nome").value.trim(),dem:cmd().replace("MODO PERGUNTAS — ",""),d:Date.now(),i:0,s,a:s.map(()=>"")});persist();abrir(id)};
 
-/* ---------- Atendimento ---------- */
-function abrir(id){A=DB.at.find(a=>a.id==id);steps=A.s;i=Math.min(A.i||0,steps.length-1);show("atend");render()}
-function save(){if(!A)return;A.a[i]=$("ta").value.trim();A.i=i;persist()}
-function render(){const s=steps[i];
- $("sec").textContent=s.t;$("obj").textContent=s.o;$("q").textContent=s.q;$("note").textContent=s.n;
- $("ta").value=A.a[i];$("cnt").textContent="Pergunta "+(i+1)+" de "+steps.length+" · respondidas: "+A.a.filter(Boolean).length;
- $("pb").style.width=((i+1)/steps.length*100)+"%";$("prev").disabled=i==0;$("next").disabled=i==steps.length-1;$("msg").textContent=""}
-function stop(){on=false;if(rec){try{rec.stop()}catch(e){}}$("mic").classList.remove("on");$("mic").textContent="🎙️ Gravar resposta do paciente"}
-function start(){
+/* ---------- Atendimento (uma tela por seção) ---------- */
+let grupos=[],gi=0,recIdx=-1;
+const chaveT=t=>norm(String(t).replace(/^MODO PERGUNTAS\s*·\s*/i,""));
+function agrupar(){grupos=[];steps.forEach((s,k)=>{const u=grupos[grupos.length-1];if(u&&chaveT(steps[u[0]].t)==chaveT(s.t))u.push(k);else grupos.push([k])})}
+function abrir(id){A=DB.at.find(x=>x.id==id);steps=A.s;agrupar();
+ const k=Math.min(A.i||0,steps.length-1);
+ gi=A.g!=null?Math.min(A.g,grupos.length-1):Math.max(0,grupos.findIndex(g=>g.includes(k)));
+ show("atend");render()}
+function save(){if(!A)return;document.querySelectorAll("#blocos textarea").forEach(t=>{A.a[+t.dataset.i]=t.value.trim()});A.g=gi;A.i=grupos[gi][0];persist()}
+function render(){const g=grupos[gi],s0=steps[g[0]];
+ $("sec").textContent=s0.t;$("obj").textContent=s0.o||"";
+ let ult=null,num=steps.slice(0,g[0]).filter(x=>!x.fala).length;
+ $("blocos").innerHTML=g.map(k=>{const s=steps[k];
+  if(s.fala)return'<div class="fala-ab">'+esc(s.q)+"</div>";
+  num++;
+  const nt=s.n&&s.n!==ult?(ult=s.n,'<div class="note">'+esc(s.n)+"</div>"):"";
+  return'<div class="qb"><div class="qtxt"><b>'+num+".</b> "+esc(s.q)+"</div>"+nt+'<button class="mic p" data-i="'+k+'">🎙️ Gravar resposta do paciente</button><textarea class="campo" data-i="'+k+'" placeholder="A resposta aparece aqui enquanto o paciente fala. Você pode editar."></textarea></div>'}).join("");
+ $("blocos").querySelectorAll("textarea").forEach(t=>t.value=A.a[+t.dataset.i]||"");
+ $("cnt").textContent="Tela "+(gi+1)+" de "+grupos.length+" · respondidas: "+A.a.filter(Boolean).length;
+ $("pb").style.width=((gi+1)/grupos.length*100)+"%";$("prev").disabled=gi==0;$("next").disabled=gi==grupos.length-1;$("msg").textContent=""}
+function stop(){on=false;recIdx=-1;if(rec){try{rec.stop()}catch(e){}}
+ document.querySelectorAll(".mic.on").forEach(b=>{b.classList.remove("on");b.textContent="🎙️ Gravar resposta do paciente"})}
+function start(idx){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!SR){$("msg").textContent="Este navegador não suporta reconhecimento de voz. Use o Google Chrome ou o Microsoft Edge.";return}
- save();const at=A,idx=i,me=new SR();rec=me;
+ save();const at=A,me=new SR();rec=me;recIdx=idx;
  me.lang="pt-BR";me.continuous=true;me.interimResults=true;
  let base=at.a[idx]?at.a[idx]+" ":"";
- me.onresult=e=>{const t=(base+Array.from(e.results).map(r=>r[0].transcript).join(" ")).trim();at.a[idx]=t;if(A===at&&i===idx)$("ta").value=t;persist()};
+ const campo=()=>document.querySelector('#blocos textarea[data-i="'+idx+'"]');
+ me.onresult=e=>{const t=(base+Array.from(e.results).map(r=>r[0].transcript).join(" ")).trim();at.a[idx]=t;const x=campo();if(A===at&&x)x.value=t;persist()};
  me.onerror=e=>{if(e.error=="not-allowed"||e.error=="service-not-allowed"){stop();$("msg").textContent="Permissão do microfone negada. Libere o microfone nas configurações do navegador."}};
- me.onend=()=>{if(on&&rec===me&&A===at&&i===idx){base=at.a[idx]?at.a[idx]+" ":"";try{me.start()}catch(e){}}};
- on=true;me.start();$("mic").classList.add("on");$("mic").textContent="⏹️ Gravando… clique para parar"}
-function go(n){stop();save();i=n;render()}
-$("mic").onclick=()=>on?(stop(),save()):start();
-$("next").onclick=()=>go(i+1);$("prev").onclick=()=>go(i-1);
-$("ta").oninput=save;
+ me.onend=()=>{if(on&&rec===me&&A===at&&recIdx===idx){base=at.a[idx]?at.a[idx]+" ":"";try{me.start()}catch(e){}}};
+ on=true;me.start();
+ const b=document.querySelector('#blocos .mic[data-i="'+idx+'"]');if(b){b.classList.add("on");b.textContent="⏹️ Gravando… clique para parar"}}
+function go(n){stop();save();gi=n;render();window.scrollTo(0,0)}
+$("blocos").onclick=e=>{const b=e.target.closest(".mic");if(!b)return;const k=+b.dataset.i;
+ if(on&&recIdx===k){stop();save()}else{stop();start(k)}};
+$("blocos").oninput=e=>{if(e.target.tagName=="TEXTAREA"&&A){A.a[+e.target.dataset.i]=e.target.value.trim();A.g=gi;A.i=grupos[gi][0];persist()}};
+$("next").onclick=()=>go(gi+1);$("prev").onclick=()=>go(gi-1);
 $("inicio").onclick=()=>{stop();save();home()};
 const arquivo=()=>{const d=new Date(A.d);return"anamnese_"+A.nome.trim()[0].toUpperCase()+"_"+d.toISOString().slice(0,10)+"_"+d.toTimeString().slice(0,5).replace(":","")+".txt"};
 function relatorio(){
