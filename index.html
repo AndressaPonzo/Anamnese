@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Anamnese por voz</title>
-<link rel="stylesheet" href="estilo.css?v=33">
+<link rel="stylesheet" href="estilo.css?v=34">
 </head>
 <body>
 <main>
@@ -15,7 +15,9 @@
       <h1>Anamnese por voz</h1>
       <div class="row"><button class="p g" data-go="fluxo">Fluxo de Sessão de Avaliação →</button></div>
       <div class="row"><button id="irbanco" class="g">Banco de perguntas</button></div>
-      <div class="row"><button id="novo" class="g">Novo paciente (ir direto à anamnese)</button></div>
+      <div class="row"><button id="novo" class="g">Novo paciente (começar pelas Boas Vindas)</button></div>
+      <div class="row"><button id="irsit" class="g">Banco de resposta para situações adversas</button></div>
+      <div class="row"><button id="irinsta" class="g">Contato Instagram</button></div>
     </div>
     <div class="card">
       <h2>Atendimentos salvos neste aparelho</h2>
@@ -35,6 +37,46 @@
       <div id="bq_lista"></div>
     </div>
     <div class="row"><button id="voltarbanco">← Início</button></div>
+  </section>
+
+  <section id="sit" hidden>
+    <div class="card">
+      <h1>Banco de resposta para situações adversas</h1>
+      <div class="cnt">Escreva o título e o conteúdo. Fica salvo neste aparelho. Na lista só aparecem os títulos: toque para abrir o conteúdo.</div>
+      <input id="sit_busca" type="text" placeholder="Procurar (título ou conteúdo)" style="margin-top:10px">
+    </div>
+    <div class="card f">
+      <h2 id="sit_ftit">Nova resposta</h2>
+      <input id="sit_t" type="text" placeholder="Título (ex.: Paciente conta algo preocupante e oculto do passado)">
+      <textarea id="sit_c" style="min-height:200px" placeholder="Conteúdo da resposta"></textarea>
+      <div class="row"><button id="sit_salvar" class="p g">Salvar</button><button id="sit_cancel" hidden>Cancelar edição</button></div>
+      <div class="cnt" id="sit_msg"></div>
+    </div>
+    <div class="card">
+      <h2>Respostas salvas</h2>
+      <div id="sit_lista"></div>
+    </div>
+    <div class="row"><button id="sit_voltar" data-go="home">← Início</button></div>
+  </section>
+
+  <section id="insta" hidden>
+    <div class="card">
+      <h1>Contato Instagram</h1>
+      <div class="cnt">Escreva o assunto e a conversa. Fica salvo neste aparelho. Na lista só aparece o assunto: toque para abrir a conversa.</div>
+      <input id="ig_busca" type="text" placeholder="Procurar (assunto ou conversa)" style="margin-top:10px">
+    </div>
+    <div class="card f">
+      <h2 id="ig_ftit">Novo contato</h2>
+      <input id="ig_t" type="text" placeholder="Assunto">
+      <textarea id="ig_c" style="min-height:200px" placeholder="Conversa"></textarea>
+      <div class="row"><button id="ig_salvar" class="p g">Salvar</button><button id="ig_cancel" hidden>Cancelar edição</button></div>
+      <div class="cnt" id="ig_msg"></div>
+    </div>
+    <div class="card">
+      <h2>Contatos salvos</h2>
+      <div id="ig_lista"></div>
+    </div>
+    <div class="row"><button id="ig_voltar" data-go="home">← Início</button></div>
   </section>
 
   <section id="fluxo" hidden>
@@ -69,28 +111,25 @@
       <p>“Seja muito bem-vindo(a). Fico feliz de receber você aqui. Primeiramente, quero agradecer pela sua confiança e dizer que este é um espaço de acolhimento: você pode falar no seu ritmo, e nada do que disser vai ser julgado e permanece em sigilo profissional.</p>
       <p>Meu objetivo hoje é ajudar você a entender um pouco melhor como funciona o nosso trabalho, o que vamos fazer durante esta sessão e o que você pode esperar desse processo.</p>
       <p><b>Me conta como você conheceu nosso trabalho?</b></p>
+      <div class="cnt">Toque em Gravar e deixe o paciente responder. A fala vira texto aqui.</div>
+      <textarea id="bv_conheceu" style="min-height:120px;margin-top:8px" placeholder="Resposta do paciente (por áudio ou digitada)"></textarea>
+      <div class="row"><button id="bv_mic" class="p">🎤 Gravar resposta</button><button id="bv_limpar">Limpar</button></div>
+      <div class="cnt" id="bv_msg"></div>
     </div>
 
     <div class="card leitura">
       <h2>Explicação da sessão</h2>
       <h3>Como será nossa sessão de hoje?</h3>
       <p>Nosso primeiro encontro será dividido em alguns momentos, para que possamos compreender sua história, identificar o que precisa ser trabalhado e iniciar o processo terapêutico.</p>
-      <p><b>1º Vou te apresentar o método que utilizo</b></p>
-      <p>Para que você compreenda nossa abordagem, conheça os objetivos do trabalho e saiba o que esperar do atendimento.</p>
-      <p><b>2º Entrevista de mapeamento</b></p>
-      <p>Vou fazer algumas perguntas para conhecer melhor você, sua história, suas dificuldades, os sentimentos envolvidos e as situações que deseja transformar.</p>
-      <p><b>3º Explicação da técnica que utilizamos</b></p>
-      <p>Antes de iniciar o procedimento, vou explicar como ele será conduzido, o que você poderá perceber e como deverá participar. Também vamos esclarecer suas dúvidas.</p>
-      <p><b>4º Devolutiva do mapeamento</b></p>
-      <p>Depois da entrevista, vou apresentar o que identifiquei a partir das suas respostas, organizando os principais pontos que serão trabalhados.</p>
-      <p><b>5º Procedimento terapêutico – Regressão e atualização de memórias</b></p>
-      <p>Iniciaremos o trabalho propriamente dito, investigando as experiências emocionais relacionadas à sua queixa e conduzindo o processo de atualização.</p>
-      <p><b>6º Retorno ao presente e fechamento clínico</b></p>
-      <p>Ao finalizar o procedimento, vamos nos orientar novamente para o momento presente, conversar sobre sua experiência e avaliar como você está se sentindo.</p>
-      <p><b>7º Indicação do protocolo e proposta de acompanhamento</b></p>
-      <p>Com base no mapeamento e nas necessidades identificadas, apresentarei minha avaliação, a recomendação de acompanhamento e o protocolo terapêutico indicado, explicando as condições e o investimento.</p>
-      <p><b>8º Encerramento</b></p>
-      <p>Finalizaremos nosso encontro com as orientações necessárias para o período entre as sessões e os próximos passos do acompanhamento.</p>
+      <p>Primeiramente, vou te apresentar o método que utilizo.<br>Em seguida, faremos um mapeamento com perguntas para conhecer melhor você.<br>Depois, vou explicar a técnica que utilizamos.<br>Na sequência, farei a devolutiva do mapeamento onde eu apresento o que identifiquei a partir das suas respostas.<br>Feito isso, iniciaremos o procedimento terapêutico em si, com a regressão e a atualização de memórias e o fechamento clínico.<br>Ao final, conversaremos sobre a indicação do protocolo e a proposta de acompanhamento.<br>E, concluímos com o encerramento da nossa sessão.”</p>
+      <details><summary><b>1º Vou te apresentar o método que utilizo</b></summary><div class="aplic"><p>Para que você compreenda nossa abordagem, conheça os objetivos do trabalho e saiba o que esperar do atendimento.</p></div></details>
+      <details><summary><b>2º Entrevista de mapeamento</b></summary><div class="aplic"><p>Vou fazer algumas perguntas para conhecer melhor você, sua história, suas dificuldades, os sentimentos envolvidos e as situações que deseja transformar.</p></div></details>
+      <details><summary><b>3º Explicação da técnica que utilizamos</b></summary><div class="aplic"><p>Antes de iniciar o procedimento, vou explicar como ele será conduzido, o que você poderá perceber e como deverá participar. Também vamos esclarecer suas dúvidas.</p></div></details>
+      <details><summary><b>4º Devolutiva do mapeamento</b></summary><div class="aplic"><p>Depois da entrevista, vou apresentar o que identifiquei a partir das suas respostas, organizando os principais pontos que serão trabalhados.</p></div></details>
+      <details><summary><b>5º Procedimento terapêutico – Regressão e atualização de memórias</b></summary><div class="aplic"><p>Iniciaremos o trabalho propriamente dito, investigando as experiências emocionais relacionadas à sua queixa e conduzindo o processo de atualização.</p></div></details>
+      <details><summary><b>6º Retorno ao presente e fechamento clínico</b></summary><div class="aplic"><p>Ao finalizar o procedimento, vamos nos orientar novamente para o momento presente, conversar sobre sua experiência e avaliar como você está se sentindo.</p></div></details>
+      <details><summary><b>7º Indicação do protocolo e proposta de acompanhamento</b></summary><div class="aplic"><p>Com base no mapeamento e nas necessidades identificadas, apresentarei minha avaliação, a recomendação de acompanhamento e o protocolo terapêutico indicado, explicando as condições e o investimento.</p></div></details>
+      <details><summary><b>8º Encerramento</b></summary><div class="aplic"><p>Finalizaremos nosso encontro com as orientações necessárias para o período entre as sessões e os próximos passos do acompanhamento.</p></div></details>
       <p>Quero que você saiba que poderá tirar suas dúvidas durante todo o atendimento. Nosso trabalho será realizado em conjunto, com respeito à sua história, aos seus limites e ao seu tempo.</p>
     </div>
 
@@ -235,6 +274,13 @@
       </ul>
     </div>
 
+    <div class="card">
+      <h2>Resposta do MODO SESSÃO</h2>
+      <div class="cnt">Cole aqui a resposta completa do MODO SESSÃO. Ela fica salva neste atendimento e alimenta as próximas páginas (devolutiva e script de confiança).</div>
+      <div class="cnt" id="sc_aviso" hidden>Nenhum atendimento aberto: o texto colado não será salvo.</div>
+      <textarea id="sc_cola" style="min-height:220px;margin-top:8px" placeholder="Cole a resposta completa do MODO SESSÃO"></textarea>
+    </div>
+
     <div class="card leitura">
       <h2>A conversa prévia</h2>
       <div class="cnt">Leia com calma, em voz alta, antes da primeira regressão. Troque o exemplo do sentimento (<span class="vermelho">raiva</span>) pelo que fizer sentido para o paciente.</div>
@@ -244,13 +290,6 @@
       <p>Se vier uma lembrança, vai ser muito fácil de você me falar se é dia ou noite, se você está sozinho ou acompanhada, porque você lembrou de algo.</p>
       <p>Também que pode acontecer de você chegar e falar assim: ‘Andressa, eu não estou vendo nada, não lembrei de nada, mas eu tenho uma sensação de que é dia, eu tenho uma sensação de que é noite.’ E como é uma sensação, no começo pode parecer que você está inventando. Porém, mesmo assim me fale, porque como você não lembra, é normal a sensação de estar inventando. Mas você vai me falando: ‘sensação de dia, sensação de acompanhada(o), sensação de tal idade’. Deixe a sensação contar a história.</p>
       <p>Nesse caso, a sensação é a parte mais confiável que nós temos. A mente, ela prega umas peças na gente, a mente nos engana. É por isso que você sofre tanto aqui no presente: porque você cria projeções com a mente, e essas previsões alteram a forma que o teu corpo reage, um exemplo pode ser você quando você fica ansiosa(o). Então como a mente mente e o corpo não. É o corpo que a gente precisa solucionar. Então nós vamos deixar esse corpo trazer a resposta automática, trazer essa sensação à tona.”</p>
-    </div>
-
-    <div class="card">
-      <h2>Resposta do MODO SESSÃO</h2>
-      <div class="cnt">Cole aqui a resposta completa do MODO SESSÃO. Ela fica salva neste atendimento e alimenta as próximas páginas (devolutiva e script de confiança).</div>
-      <div class="cnt" id="sc_aviso" hidden>Nenhum atendimento aberto: o texto colado não será salvo.</div>
-      <textarea id="sc_cola" style="min-height:220px;margin-top:8px" placeholder="Cole a resposta completa do MODO SESSÃO"></textarea>
     </div>
 
     <div class="row">
@@ -693,11 +732,11 @@
     <div class="card apoio"><ul><li>Agradecer o paciente pela abertura e pela participação durante toda a sessão.</li><li>Colocar-se à disposição para acompanhar a jornada do paciente daqui em diante.</li><li>Desejar uma boa semana e confirmar a data da próxima sessão e a forma de pagamento combinadas.</li></ul></div>
     <div class="row"><button data-go="indicacao">← Indicação do protocolo</button><button data-go="fluxo">☰ Fluxo da sessão</button><button data-go="home">Início</button></div>
   </section>
-  <div class="cnt" style="text-align:center;margin:20px 0">versão 33</div>
+  <div class="cnt" style="text-align:center;margin:20px 0">versão 34</div>
 </main>
 <script>window.onerror=function(m,s,l){var d=document.createElement("div");d.style.cssText="background:#c0392b;color:#fff;padding:10px;font:14px sans-serif";d.textContent="Erro no site: "+m+" ("+String(s).split("/").pop()+":"+l+")";document.body.prepend(d)}</script>
-<script src="roteiros/base.js?v=33"></script>
-<script src="parser.js?v=33"></script>
-<script src="app.js?v=33"></script>
+<script src="roteiros/base.js?v=34"></script>
+<script src="parser.js?v=34"></script>
+<script src="app.js?v=35"></script>
 </body>
 </html>

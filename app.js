@@ -17,7 +17,7 @@ try{DB=JSON.parse(localStorage.getItem(K))||DB}catch(e){}
 DB.at=DB.at||[];DB.bq=DB.bq||[];
 const persist=()=>{try{localStorage.setItem(K,JSON.stringify(DB))}catch(e){}};
 const baixar=(txt,nome,tipo)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:tipo+";charset=utf-8"}));a.download=nome;a.click()};
-const show=id=>{["home","banco","fluxo","boasvindas","setup","previa","atend","resumo","pretalk","devolutiva","suspiro","regressao","retorno","indicacao","encerramento"].forEach(x=>$(x).hidden=x!=id);if(id=="setup"||id=="previa")atualizarDemandas();if(id=="pretalk"||id=="devolutiva"||id=="suspiro"||id=="regressao")carregarSessao(id)};
+const show=id=>{["home","banco","sit","insta","fluxo","boasvindas","setup","previa","atend","resumo","pretalk","devolutiva","suspiro","regressao","retorno","indicacao","encerramento"].forEach(x=>$(x).hidden=x!=id);if(id=="setup"||id=="previa")atualizarDemandas();if(id=="pretalk"||id=="devolutiva"||id=="suspiro"||id=="regressao")carregarSessao(id)};
 
 /* ---------- Início ---------- */
 function home(){stop();A=null;$("sc_cola").value="";$("sc_ok").value="";$("sc_resp").value="";document.querySelectorAll("[data-rg]").forEach(x=>x.value="");document.querySelectorAll("input[data-rgr]").forEach(x=>x.checked=false);dinamicos();show("home");
@@ -25,16 +25,19 @@ function home(){stop();A=null;$("sc_cola").value="";$("sc_ok").value="";$("sc_re
 $("lista").onclick=e=>{const o=e.target.dataset.o,x=e.target.dataset.x;
  if(o)abrir(o);
  if(x&&confirm("Excluir este atendimento? Isso não pode ser desfeito.")){DB.at=DB.at.filter(a=>a.id!=x);persist();home()}};
-$("exp").onclick=()=>baixar(JSON.stringify(DB),"backup_anamneses_"+new Date().toISOString().slice(0,10)+".json","application/json");
+const lerX=k=>{try{const v=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}};
+$("exp").onclick=()=>baixar(JSON.stringify(Object.assign({},DB,{sit:lerX("rb7_situacoes_adversas"),ig:lerX("rb7_contato_instagram")})),"backup_anamneses_"+new Date().toISOString().slice(0,10)+".json","application/json");
 $("imp").onchange=e=>{const f=e.target.files[0];if(!f)return;const fr=new FileReader();
- fr.onload=()=>{try{const d=JSON.parse(fr.result);let n=0;(d.at||[]).forEach(a=>{if(!DB.at.some(b=>b.id==a.id)){DB.at.push(a);n++}});let m=0;(d.bq||[]).forEach(b=>{if(!DB.bq.some(x=>x.id==b.id)){DB.bq.push(b);m++}});persist();home();alert(n+" atendimento(s) e "+m+" conjunto(s) de perguntas importado(s).")}catch(x){alert("Não foi possível ler este arquivo.")}};
+ fr.onload=()=>{try{const d=JSON.parse(fr.result);let n=0;(d.at||[]).forEach(a=>{if(!DB.at.some(b=>b.id==a.id)){DB.at.push(a);n++}});let m=0;(d.bq||[]).forEach(b=>{if(!DB.bq.some(x=>x.id==b.id)){DB.bq.push(b);m++}});const mescla=(k,novos)=>{const at=lerX(k);let c=0;(novos||[]).forEach(x=>{if(x&&x.t&&!at.some(y=>y.t==x.t&&y.c==x.c)){at.push(x);c++}});try{localStorage.setItem(k,JSON.stringify(at))}catch(e){}return c};
+  const s1=mescla("rb7_situacoes_adversas",d.sit),s2=mescla("rb7_contato_instagram",d.ig);
+  persist();home();if(window.rb7Recarrega)window.rb7Recarrega();alert(n+" atendimento(s), "+m+" conjunto(s) de perguntas, "+s1+" resposta(s) de situações adversas e "+s2+" contato(s) do Instagram importado(s).")}catch(x){alert("Não foi possível ler este arquivo.")}};
  fr.readAsText(f);e.target.value=""};
 
 /* ---------- Novo paciente ---------- */
 const cmd=()=>"MODO PERGUNTAS — "+$("dem").value.trim()+($("sexo").value?", "+$("sexo").value:"")+($("idade").value?", "+$("idade").value+" anos":"")+($("ctx").value.trim()?", "+$("ctx").value.trim():"");
 const upd=()=>{$("cmd").value=cmd();listarBanco()};
 ["dem","sexo","idade","ctx"].forEach(x=>$(x).oninput=upd);
-$("novo").onclick=()=>{["nome","dem","idade","ctx","cola"].forEach(x=>$(x).value="");$("sexo").value="";$("ok").checked=false;upd();show("setup")};
+$("novo").onclick=()=>{["nome","dem","idade","ctx","cola"].forEach(x=>$(x).value="");$("sexo").value="";$("ok").checked=false;upd();show("boasvindas")};
 $("voltar1").onclick=()=>show("fluxo");$("voltar2").onclick=()=>show("setup");
 $("copiar").onclick=()=>{upd();$("cmd").select();
  (navigator.clipboard?navigator.clipboard.writeText($("cmd").value):Promise.reject()).catch(()=>document.execCommand("copy")).finally(()=>{$("copiar").textContent="Copiado ✓";setTimeout(()=>$("copiar").textContent="Copiar comando",1500)})};
@@ -255,3 +258,157 @@ document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
  const p=b.dataset.go;stop();
  if(p=="home")home();else show(p)});
 home();
+
+/* ---------- Banco de respostas, Contato Instagram e áudio das Boas Vindas ---------- */
+/* extras.js - Banco de respostas, Contato Instagram, Boas Vindas por áudio */
+(function () {
+  'use strict';
+
+  function load(key) {
+    try { var v = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(v) ? v : []; }
+    catch (e) { return []; }
+  }
+  function save(key, arr) {
+    try { localStorage.setItem(key, JSON.stringify(arr)); return true; }
+    catch (e) { return false; }
+  }
+  function norm(t) {
+    return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+  function esc(t) {
+    return String(t).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  /* Lista com título visível e conteúdo oculto (reutilizada nas duas páginas) */
+  function criaBanco(cfg) {
+    var editando = null;
+
+    function render() {
+      var itens = load(cfg.key), q = norm($(cfg.busca).value), out = '', n = 0;
+      itens.forEach(function (it, idx) {
+        if (q && norm(it.t).indexOf(q) < 0 && norm(it.c).indexOf(q) < 0) return;
+        n++;
+        out += '<details><summary><b>' + esc(it.t) + '</b></summary><div class="aplic">' +
+          '<p style="white-space:pre-wrap">' + esc(it.c) + '</p>' +
+          '<div class="row"><button data-copy="' + idx + '">Copiar</button>' +
+          '<button data-edit="' + idx + '">Editar</button>' +
+          '<button data-del="' + idx + '">Excluir</button></div></div></details>';
+      });
+      if (!n) out = '<div class="cnt">' + (itens.length ? 'Nada encontrado para essa busca.' : cfg.vazio) + '</div>';
+      $(cfg.lista).innerHTML = out;
+    }
+
+    function limpaForm() {
+      editando = null;
+      $(cfg.t).value = ''; $(cfg.c).value = '';
+      $(cfg.ftit).textContent = cfg.novoTitulo;
+      $(cfg.cancel).hidden = true;
+    }
+
+    $(cfg.busca).addEventListener('input', render);
+
+    $(cfg.salvar).addEventListener('click', function () {
+      var t = $(cfg.t).value.trim(), c = $(cfg.c).value.trim(), msg = $(cfg.msg);
+      if (!t || !c) { msg.textContent = 'Preencha os dois campos antes de salvar.'; return; }
+      var itens = load(cfg.key);
+      if (editando !== null && itens[editando]) { itens[editando] = { t: t, c: c }; }
+      else { itens.unshift({ t: t, c: c }); }
+      if (save(cfg.key, itens)) { msg.textContent = 'Salvo neste aparelho.'; limpaForm(); render(); }
+      else { msg.textContent = 'Não foi possível salvar (armazenamento do navegador cheio ou bloqueado).'; }
+    });
+
+    $(cfg.cancel).addEventListener('click', function () { limpaForm(); $(cfg.msg).textContent = ''; });
+
+    $(cfg.lista).addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      var itens = load(cfg.key), idx;
+      if (b.hasAttribute('data-del')) {
+        idx = +b.getAttribute('data-del');
+        if (confirm('Excluir "' + itens[idx].t + '"?')) { itens.splice(idx, 1); save(cfg.key, itens); render(); }
+      } else if (b.hasAttribute('data-edit')) {
+        idx = +b.getAttribute('data-edit');
+        editando = idx;
+        $(cfg.t).value = itens[idx].t; $(cfg.c).value = itens[idx].c;
+        $(cfg.ftit).textContent = 'Editando';
+        $(cfg.cancel).hidden = false;
+        $(cfg.t).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (b.hasAttribute('data-copy')) {
+        idx = +b.getAttribute('data-copy');
+        var txt = itens[idx].c;
+        (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+          .then(function () { b.textContent = 'Copiado'; })
+          .catch(function () { b.textContent = 'Selecione e copie manualmente'; });
+      }
+    });
+
+    $(cfg.abrir).addEventListener('click', function () { render(); show(cfg.sec); });
+    render();
+    renders.push(render);
+  }
+  var renders = [];
+  window.rb7Recarrega = function () { renders.forEach(function (r) { r(); }); };
+
+  criaBanco({
+    key: 'rb7_situacoes_adversas', sec: 'sit', abrir: 'irsit', voltar: 'sit_voltar',
+    busca: 'sit_busca', lista: 'sit_lista', t: 'sit_t', c: 'sit_c', ftit: 'sit_ftit',
+    salvar: 'sit_salvar', cancel: 'sit_cancel', msg: 'sit_msg',
+    novoTitulo: 'Nova resposta', vazio: 'Nenhuma resposta salva ainda.'
+  });
+  criaBanco({
+    key: 'rb7_contato_instagram', sec: 'insta', abrir: 'irinsta', voltar: 'ig_voltar',
+    busca: 'ig_busca', lista: 'ig_lista', t: 'ig_t', c: 'ig_c', ftit: 'ig_ftit',
+    salvar: 'ig_salvar', cancel: 'ig_cancel', msg: 'ig_msg',
+    novoTitulo: 'Novo contato', vazio: 'Nenhum contato salvo ainda.'
+  });
+
+  /* Novo paciente: o app.js já abre as Boas Vindas; aqui só limpa a resposta do paciente anterior */
+  $('novo').addEventListener('click', function () {
+    var t = $('bv_conheceu'); if (t) t.value = '';
+    try { localStorage.removeItem('rb7_bv_conheceu'); } catch (x) {}
+  });
+
+  /* Boas Vindas: resposta por áudio */
+  var KEY_BV = 'rb7_bv_conheceu';
+  var ta = $('bv_conheceu'), mic = $('bv_mic'), msg = $('bv_msg');
+  try { ta.value = localStorage.getItem(KEY_BV) || ''; } catch (e) {}
+  ta.addEventListener('input', function () { try { localStorage.setItem(KEY_BV, ta.value); } catch (e) {} });
+  $('bv_limpar').addEventListener('click', function () {
+    ta.value = ''; try { localStorage.removeItem(KEY_BV); } catch (e) {}
+  });
+
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition, rec = null, ativo = false, base = '';
+  if (!SR) {
+    mic.disabled = true;
+    msg.textContent = 'Este navegador não tem reconhecimento de voz. Use o Chrome (Android/computador) ou o Safari recente.';
+  } else {
+    mic.addEventListener('click', function () {
+      if (ativo) { ativo = false; if (rec) rec.stop(); return; }
+      rec = new SR();
+      rec.lang = 'pt-BR'; rec.continuous = true; rec.interimResults = true;
+      base = ta.value ? ta.value.replace(/\s+$/, '') + ' ' : '';
+      rec.onresult = function (ev) {
+        var fin = '', par = '';
+        for (var i = 0; i < ev.results.length; i++) {
+          if (ev.results[i].isFinal) fin += ev.results[i][0].transcript;
+          else par += ev.results[i][0].transcript;
+        }
+        ta.value = base + fin + par;
+        try { localStorage.setItem(KEY_BV, ta.value); } catch (e) {}
+      };
+      rec.onend = function () {
+        if (ativo) { base = ta.value ? ta.value.replace(/\s+$/, '') + ' ' : ''; try { rec.start(); } catch (e) {} return; }
+        mic.textContent = '🎤 Gravar resposta'; msg.textContent = '';
+      };
+      rec.onerror = function (ev) {
+        if (ev.error === 'no-speech' || ev.error === 'aborted') return;
+        ativo = false;
+        msg.textContent = ev.error === 'not-allowed' ? 'Permita o uso do microfone no navegador.' : 'Erro no reconhecimento de voz: ' + ev.error;
+        mic.textContent = '🎤 Gravar resposta';
+      };
+      ativo = true; mic.textContent = '⏹ Parar'; msg.textContent = 'Ouvindo…';
+      try { rec.start(); } catch (e) { ativo = false; }
+    });
+  }
+})();
