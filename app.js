@@ -412,3 +412,50 @@ home();
     });
   }
 })();
+
+/* ---------- Microfone nos campos marcados com data-voz ---------- */
+(function(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  let atual=null;
+  const pararAtual=()=>{if(atual){atual.ativo=false;try{atual.rec.stop()}catch(e){}atual=null}};
+  document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("[data-go],#voltarresumo"))pararAtual()},true);
+  document.querySelectorAll("textarea[data-voz]").forEach(ta=>{
+    const box=document.createElement("div");
+    box.className="row";
+    const btn=document.createElement("button");
+    btn.type="button";btn.textContent="🎤 Gravar";
+    const msg=document.createElement("div");
+    msg.className="cnt";
+    box.appendChild(btn);
+    ta.insertAdjacentElement("afterend",box);
+    box.insertAdjacentElement("afterend",msg);
+    if(!SR){btn.disabled=true;msg.textContent="Este navegador não tem reconhecimento de voz. Use o Chrome (Android/computador) ou o Safari recente.";return}
+    const reset=()=>{btn.textContent="🎤 Gravar";msg.textContent=""};
+    btn.onclick=()=>{
+      if(atual&&atual.ta===ta){pararAtual();reset();return}
+      pararAtual();
+      const rec=new SR();rec.lang="pt-BR";rec.continuous=true;rec.interimResults=true;
+      const est={rec,ta,ativo:true,base:""};
+      const fixaBase=()=>{est.base=ta.value?ta.value.replace(/\s+$/,"")+" ":""};
+      fixaBase();
+      rec.onresult=ev=>{
+        let fin="",par="";
+        for(let i=0;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal)fin+=r[0].transcript;else par+=r[0].transcript}
+        ta.value=est.base+fin+par;
+        ta.dispatchEvent(new Event("input",{bubbles:true}));
+      };
+      rec.onend=()=>{
+        if(est.ativo){fixaBase();try{rec.start()}catch(e){}return}
+        reset();
+      };
+      rec.onerror=ev=>{
+        if(ev.error==="no-speech"||ev.error==="aborted")return;
+        est.ativo=false;
+        msg.textContent=ev.error==="not-allowed"?"Permita o uso do microfone no navegador.":"Erro no reconhecimento de voz: "+ev.error;
+        btn.textContent="🎤 Gravar";
+      };
+      atual=est;btn.textContent="⏹ Parar";msg.textContent="Ouvindo…";
+      try{rec.start()}catch(e){est.ativo=false;atual=null;reset()}
+    };
+  });
+})();
